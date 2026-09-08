@@ -1,129 +1,184 @@
+<div align="center">
+
 # EasyExile
 
-EasyExile is a modular Path of Exile 2 companion written in C# for Windows. It reads selected game state, converts raw memory into immutable domain snapshots, and presents map, navigation, entity, loot, progression, and combat information through an external overlay.
+### See more. Navigate smarter. Stay focused on the fight.
 
-This is a private experimental project and is not affiliated with or endorsed by Grinding Gear Games.
+**A complete Path of Exile 2 companion that brings your map, enemies, loot, progression, and essential combat information together in one clean overlay.**
 
-## Project purpose
+![Platform](https://img.shields.io/badge/platform-Windows-0078D4?style=for-the-badge)
+![Game](https://img.shields.io/badge/game-Path%20of%20Exile%202-C88A3D?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-Private%20Development-6C5CE7?style=for-the-badge)
 
-The project separates memory interpretation from presentation. Low-level code is restricted to `EasyExile.Core`; visual features receive immutable snapshots and do not know addresses, offsets, process handles, or native memory layouts.
+</div>
 
-```text
-Path of Exile 2 process
-          |
-          | bounded reads
-          v
- Memory + Contract + World readers
-          |
-          v
-      GameSession
-          |
-          v
-  Immutable snapshots
-          |
-          v
- Radar features and UI
-```
+---
 
-## Main modules
+## Your adventure, made clearer
 
-### EasyExile.Core
+Path of Exile 2 is full of information: unexplored paths, dangerous enemies, hidden objectives, valuable drops, complex items, and long campaign routes.
 
-The data and safety boundary of the application.
+EasyExile brings the most useful information into a single companion experience. It helps you understand what is happening around your character without constantly switching screens, memorizing routes, or stopping to inspect every detail.
 
-- **Memory** — owns read-only Windows process access, typed reads, native strings, and read accounting.
-- **Contract** — provides the single named boundary to the build-specific `GameOffsets.dll` contract.
-- **Runtime** — validates the client build, manages the game session, area epochs, caches, and snapshot lifecycle.
-- **World** — interprets entities, components, terrain, map UI, loot labels, item slots, and landmarks.
-- **Camera** — reads the game camera and prepares view-projection data.
-- **Snapshots** — defines the immutable data transferred from Core to all consumers.
-- **Spatial** — contains vector types and world-to-screen projection logic.
-- **Navigation** — provides terrain-cell access, A* search, route planning, and path smoothing.
-- **Diagnostics** — defines bounded UI inspection, captions, dump options, and guided probe primitives.
+Whether you are progressing through the campaign, exploring a large area, hunting important enemies, or deciding which item deserves your attention, EasyExile keeps the information visible and organized.
 
-### EasyExile.Radar
+## What EasyExile does
 
-The presentation and feature layer.
+### 🗺️ Advanced map and exploration
 
-- **Runtime** — coordinates snapshot updates separately from rendering and constructs each render frame.
-- **Overlay** — manages the external transparent window, game-window tracking, screen capture, and native window integration.
-- **Rendering** — provides the canvas abstraction, ImGui implementation, icons, SVG paths, frame data, and visual caches.
-- **Native Map** — draws terrain, exploration, entities, labels, landmarks, and icons using map-specific projection and display rules.
-- **Navigation** — manages destinations, background replanning, route progress, and visual route guidance.
-- **Levelling** — models the campaign graph, current journal state, objectives, step selection, and progression panels.
-- **Loot** — presents ground values, hovered-item prices, mod tiers, support suggestions, and item-slot highlighting.
-- **HP Bars** — renders monster health and threat information from entity snapshots.
-- **World** — renders player/world diagnostics independently of the native map.
-- **AutoPotion** — optionally sends configured flask key presses after explicit enablement and multiple safety gates.
-- **Settings and UI** — stores feature configuration and exposes the settings window.
-- **Pricing** — resolves cached prices, mod tiers, and support recommendations.
-- **Input** — contains the isolated Win32 keyboard-input implementation used only by AutoPotion.
+EasyExile transforms the game world into a clear, informative map built for exploration.
 
-### EasyExile.Diagnostics
+- Displays walkable terrain and explored areas
+- Shows your current position and movement
+- Marks enemies, NPCs, chests, exits, transitions, and important objects
+- Keeps useful landmarks visible as you explore
+- Supports the game's map view with accurate positioning and alignment
+- Uses configurable icons, labels, colors, and visibility rules
 
-A separate live-research executable. It contains focused tools for inspecting the game-state chain, areas, transitions, camera, UI panels, text, tooltips, map alignment, item slots, and loot labels. Diagnostics are not part of the normal rendering pipeline.
+### 🧭 Intelligent navigation
 
-### EasyExile.Core.Tests
+Choose where you want to go and let EasyExile turn the terrain into a practical route.
 
-The deterministic verification project. It uses fake memory and ordinary snapshot fixtures to test native reads, build mismatch behavior, area transitions, snapshot rules, navigation, map rendering contracts, loot, campaign guidance, AutoPotion gates, and architecture boundaries.
+- Calculates paths through available terrain
+- Updates the route when your position or destination changes
+- Removes unnecessary turns for cleaner guidance
+- Tracks your progress along the selected route
+- Provides visual direction without controlling character movement
 
-## Feature groups
+### 📖 Campaign guidance
 
-| Group | Responsibility |
+Progress through the campaign with less uncertainty.
+
+- Recognizes the current area
+- Tracks campaign progress
+- Suggests the next relevant objective
+- Shows the current and upcoming steps
+- Connects areas through a structured campaign route
+- Helps reduce backtracking and missed objectives
+
+### 👹 Enemy awareness
+
+Understand nearby threats before they disappear into visual clutter.
+
+- Identifies monsters and other important entities
+- Distinguishes entity types and monster rarity
+- Displays monster health information
+- Highlights dangerous or relevant targets
+- Keeps labels and markers stable while entities move
+
+### 💎 Loot intelligence
+
+Spend less time checking everything and more time collecting what matters.
+
+- Reads visible ground-item labels
+- Displays known item values
+- Shows price information for inspected items
+- Highlights relevant inventory slots
+- Identifies modifier tiers
+- Provides curated support-gem suggestions
+
+### ❤️ Player and combat information
+
+Keep essential character information easy to understand during combat.
+
+- Tracks life, mana, and energy shield
+- Presents player position and status
+- Connects combat data with map and enemy information
+- Safely hides information when the current data cannot be validated
+
+### 🧪 AutoPotion
+
+EasyExile includes an optional automatic flask assistant.
+
+- Supports life, mana, and energy-shield conditions
+- Allows custom thresholds, keys, and cooldowns
+- Works only while Path of Exile 2 is the active window
+- Pauses outside playable areas or when character data is invalid
+- Includes a dry-run mode for testing without pressing keys
+- Includes an F8 emergency switch
+- Is disabled by default
+
+> **Important:** AutoPotion sends configured keyboard input when enabled. Automation may conflict with game rules or account policies. Review the current Path of Exile terms before using this feature.
+
+## Designed to stay out of your way
+
+EasyExile is built around a simple idea: useful information should be available when you need it and invisible when you do not.
+
+- **Clean presentation** — information is separated into focused visual layers.
+- **Customizable experience** — map, loot, player, health-bar, campaign, and debug options can be configured independently.
+- **Responsive updates** — game information and visual rendering run independently for a smoother experience.
+- **Area-aware behavior** — exploration, entities, routes, and temporary data are refreshed correctly when changing zones.
+- **Graceful failure** — unavailable information disables only the affected feature instead of displaying unreliable results.
+
+## Built with safety in mind
+
+EasyExile reads selected information from the game process but does not inject code into it and does not modify game memory.
+
+The application validates the running game version before using its memory layout. If the version is not compatible, memory-based functionality is stopped instead of attempting to use outdated information.
+
+AutoPotion is the only feature capable of sending keyboard input. It is isolated from the rest of the application, disabled by default, and protected by multiple checks.
+
+## Feature overview
+
+| Category | Included capabilities |
 | --- | --- |
-| Process safety | Read-only access, bounded reads, client fingerprint validation, and fail-closed behavior |
-| Entity model | Classification and snapshots for players, monsters, NPCs, chests, transitions, items, and objects |
-| Native map | Terrain texture, exploration history, map projection, icons, labels, and display filtering |
-| Navigation | A* pathfinding, route smoothing, destinations, replanning, and progress tracking |
-| Campaign | Area graph, route definitions, progression journal, objective selection, and step presentation |
-| Loot | Ground labels, item slots, price lookup, mod tiers, support advice, and highlighting |
-| Combat display | Player state, monster health bars, rarity, relation, and threat presentation |
-| Diagnostics | Live structural inspection and evidence gathering for supported client builds |
-| AutoPotion | Optional flask-key automation, disabled by default |
+| Map | Terrain, exploration, icons, labels, landmarks, map alignment |
+| Navigation | Route calculation, smoothing, destination tracking, automatic replanning |
+| Campaign | Area recognition, objective guidance, progression history, next-step panel |
+| Enemies | Classification, rarity, health bars, threat visibility |
+| Loot | Ground labels, price information, slot highlighting, modifier tiers |
+| Build support | Skill support suggestions and item information |
+| Player | Position, life, mana, energy shield, combat status |
+| Customization | Individual settings for every major feature group |
+| Diagnostics | Specialized tools for validating supported game information |
+| Optional automation | Configurable AutoPotion with safety gates and kill switch |
 
-## Important boundaries
+## Who EasyExile is for
 
-- `EasyExile.Core` is the only project allowed to reference `GameOffsets.dll`.
-- Radar features consume snapshots and cannot access memory readers.
-- Memory layouts are accepted only for the client fingerprint compiled with the contract.
-- Invalid or unavailable data disables the affected behavior instead of being guessed.
-- Area-scoped caches are invalidated when the area epoch changes.
-- Native containers, trees, and collections must always have explicit traversal limits.
-- Navigation provides visual guidance and never controls movement.
+EasyExile is designed for players who want:
 
-## AutoPotion warning
+- clearer exploration;
+- faster campaign progression;
+- better awareness during combat;
+- less time spent evaluating low-value loot;
+- useful information without an overloaded interface;
+- one companion instead of several disconnected tools.
 
-AutoPotion is the only module that generates input. It uses Windows `SendInput` for configured flask keys when explicitly enabled. It ships disabled and checks the foreground window, in-area state, plausible vitals, thresholds, cooldowns, dry-run mode, and the F8 kill switch.
+## Current development status
 
-Automation may violate game rules or account policies. Anyone with access to this private repository is responsible for reviewing the current Path of Exile terms before enabling it.
+EasyExile is in private active development. Its main systems are implemented and covered by an extensive automated test suite, but Path of Exile 2 updates may require compatibility updates before live information becomes available again.
 
-## Offset contract
+The priority is always to show trustworthy information. When EasyExile cannot validate something, it prefers to show nothing rather than show a convincing but incorrect result.
 
-`libs/GameOffsets.dll` is produced and validated by a separate Analyzer project. Its constants and build fingerprint are compiled into `EasyExile.Core`, making them one atomic versioned unit. Replacing the DLL alone does not update an already compiled consumer.
+---
 
-The complete update design is documented in [Offset contract workflow](CONTRACT_WORKFLOW.md).
+## Technical information
 
-## Detailed documentation
+This section is intended for developers and maintainers. Players do not need to understand it to know what EasyExile offers.
+
+EasyExile is divided into three main projects:
+
+- **EasyExile.Core** reads and validates game information, manages sessions, and creates safe snapshots.
+- **EasyExile.Radar** turns those snapshots into the map, navigation, loot, campaign, combat, and settings experience.
+- **EasyExile.Diagnostics** contains focused tools used to verify compatibility and investigate game structures.
+
+The Radar never receives memory addresses or process readers. It receives completed, immutable snapshots containing only the information a feature is allowed to use.
+
+For maintainers:
 
 - [Complete module reference](docs/MODULES.md)
 - [Architecture and data flow](docs/ARCHITECTURE.md)
-- [Feature behavior](docs/FEATURES.md)
+- [Feature implementation guide](docs/FEATURES.md)
 - [Development and testing rules](docs/DEVELOPMENT.md)
+- [Offset contract workflow](CONTRACT_WORKFLOW.md)
 - [Overlay backend](src/EasyExile.Radar/Overlay/BACKEND.md)
 
-## Repository structure
+---
 
-| Path | Contents |
-| --- | --- |
-| `src/EasyExile.Core` | Memory boundary, game-domain readers, snapshots, and navigation algorithms |
-| `src/EasyExile.Radar` | Overlay, rendering, settings, and feature implementations |
-| `tools/EasyExile.Diagnostics` | Live inspection and validation tools |
-| `tools/support-advice` | Generator and curated support recommendation data |
-| `tools/devtree` | Utility for comparing diagnostic tree captures |
-| `tests/EasyExile.Core.Tests` | Deterministic unit and architecture tests |
-| `libs/GameOffsets.dll` | Build-specific offset contract |
-| `docs` | Architecture, modules, features, and development documentation |
+<div align="center">
 
-## Repository status
+**EasyExile — more clarity between you and the next objective.**
 
-The codebase is experimental and tied to specific Path of Exile 2 builds. Passing deterministic tests proves internal behavior; it does not prove that a historical memory layout remains valid after a client update.
+Private project. Not affiliated with Grinding Gear Games.
+
+</div>
