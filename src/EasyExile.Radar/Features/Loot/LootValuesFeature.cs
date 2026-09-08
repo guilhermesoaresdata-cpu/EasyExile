@@ -125,13 +125,27 @@ public sealed class LootValuesFeature : IRadarFeature
                 ? Price(item)
                 : _prices.TryByName(label.Text);
 
+            var unique = item?.IsUnique ?? false;
+
             if (price is not { } value)
             {
                 _stats.LootTagsUnpriced++;
+
+                // A unique with no price was being dropped silently, which
+                // deleted the one item on the ground that always deserves a
+                // look. A unique is priced by its ART, because the game writes
+                // only the base on the tag - so a unique whose art the price
+                // book does not carry looks exactly like a rare that nobody
+                // buys, and got the same treatment.
+                //
+                // "No price" is not "no value" here; it is the tool admitting
+                // it does not know. The colour for saying so already existed
+                // and was only ever used in the stash.
+                if (unique && options.ShowUnpricedUniques)
+                    Unpriced(canvas, options, label, drift, bounds);
+
                 continue;
             }
-
-            var unique = item?.IsUnique ?? false;
 
             if (value.Exalted < options.MinimumFor(value.Category, unique))
             {
@@ -363,6 +377,40 @@ public sealed class LootValuesFeature : IRadarFeature
     /// this feature was a dim "0.12 ex" that read as nothing at all. Same
     /// construction as the game's tag, so it lands with the same weight.
     /// </remarks>
+    /// <summary>
+    /// Says "unique, and I do not know what it is worth" on the tag itself.
+    /// </summary>
+    /// <remarks>
+    /// Deliberately not a number. Guessing one for a unique the price book has
+    /// never heard of would be worse than the silence this replaces - the whole
+    /// point is that the answer is unknown and the item is worth picking up
+    /// anyway.
+    /// </remarks>
+    private static void Unpriced(
+        IOverlayCanvas canvas, LootSettings options, LootLabelSnapshot label, Vector2 drift, Overlay.ScreenRect bounds)
+    {
+        var centre = label.CentreX + drift.X;
+        var bottom = label.Bottom + drift.Y;
+
+        if (label.Right + drift.X < bounds.X || label.X + drift.X > bounds.Right ||
+            label.CentreY + drift.Y < bounds.Y || label.CentreY + drift.Y > bounds.Bottom) return;
+
+        var text = T("unique - sem preco");
+        var scale = options.TextScale;
+        var size = canvas.MeasureText(text, scale);
+        var colour = unchecked((uint)options.UnknownColour);
+
+        var left = centre - (size.X / 2f);
+        var top = bottom + 4f;
+
+        var min = new Vector2(left - 5f, top - 3f);
+        var max = new Vector2(left + size.X + 5f, top + size.Y + 3f);
+
+        canvas.Rect(min, max, Palette.Shadow);
+        canvas.Rect(min, max, colour, filled: false);
+        canvas.Text(new Vector2(left, top), colour, text, scale);
+    }
+
     private static void Chip(
         IOverlayCanvas canvas, LootSettings options, Vector2 at, string text, bool rich,
         bool centred = false)

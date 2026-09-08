@@ -456,5 +456,8 @@ public static class Text
         { "resistencias: nao lidas ainda", "resistances: not read yet" },
         { "faltam ", "short by " },
         { "ok", "ok" },
+        { "unique - sem preco", "unique - no price" },
+        { "Marcar unique no chao mesmo sem preco", "Mark ground uniques even with no price" },
+        { "Sem preco nao quer dizer sem valor - so que a lista nao conhece ele.", "No price does not mean no value - only that the list has not heard of it." },
     };
 }

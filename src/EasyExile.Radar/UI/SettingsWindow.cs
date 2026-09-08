@@ -1161,6 +1161,12 @@ internal sealed class SettingsWindow
         var unknown = Colour(T("Unique sem preco"), loot.UnknownColour);
         if (unknown != loot.UnknownColour) _settings.Loot = loot with { UnknownColour = unknown };
 
+        var showUnpriced = loot.ShowUnpricedUniques;
+        if (ImGui.Checkbox(T("Marcar unique no chao mesmo sem preco"), ref showUnpriced))
+            _settings.Loot = loot with { ShowUnpricedUniques = showUnpriced };
+
+        ImGui.TextDisabled(T("Sem preco nao quer dizer sem valor - so que a lista nao conhece ele."));
+
         ImGui.Separator();
 
         var scale = loot.TextScale;

@@ -323,6 +323,17 @@ public sealed record LootSettings
     /// <summary>A unique the price book has no row for.</summary>
     public int UnknownColour { get; init; } = unchecked((int)0xFF28A0FF);
 
+    /// <summary>
+    /// Mark a unique on the ground even when its price is unknown.
+    /// </summary>
+    /// <remarks>
+    /// A unique is priced by its art, because the game writes only the base
+    /// type on its ground tag. When the price book has never seen that art the
+    /// item was dropped from the overlay entirely - so the single drop that
+    /// always deserves a look was the one guaranteed to be invisible.
+    /// </remarks>
+    public bool ShowUnpricedUniques { get; init; } = true;
+
     /// <summary>The floor that applies to a given category.</summary>
     public float MinimumFor(string? category, bool unique)
     {

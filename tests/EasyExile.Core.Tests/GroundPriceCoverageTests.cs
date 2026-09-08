@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Text.Json;
 using EasyExile.Core.Snapshots;
 using EasyExile.Core.Spatial;
@@ -77,6 +77,87 @@ public class GroundPriceCoverageTests : IDisposable
 
     private static ImmutableArray<LootLabelSnapshot> NoTags =>
         ImmutableArray<LootLabelSnapshot>.Empty;
+
+    // ---- a unique the price book has never heard of --------------------------
+
+    [Fact]
+    public void A_unique_with_no_price_is_still_marked_on_the_ground()
+    {
+        // The bug this covers: a unique is priced by its ART, because the game
+        // writes only the base type on the ground tag. A unique whose art the
+        // book does not carry produced no price, and the whole tag was skipped
+        // - so the one drop that always deserves a look was the one guaranteed
+        // to be invisible.
+        var canvas = Draw(
+            new LootSettings(),
+            Unique("Art/2DItems/Armours/BodyArmours/Nowhere", "Wayfarer Jacket"),
+            Tag("Wayfarer Jacket"));
+
+        Assert.Contains(canvas.Texts, t => t.Text.Contains("unique", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void The_unpriced_unique_mark_says_nothing_about_value()
+    {
+        // Deliberately not a number. Inventing one for a unique nobody has
+        // priced would be worse than the silence it replaces: the honest answer
+        // is that the tool does not know and the item is worth taking anyway.
+        var canvas = Draw(
+            new LootSettings(),
+            Unique("Art/2DItems/Armours/BodyArmours/Nowhere", "Wayfarer Jacket"),
+            Tag("Wayfarer Jacket"));
+
+        Assert.DoesNotContain(canvas.Texts, t => t.Text.Any(char.IsDigit));
+    }
+
+    [Fact]
+    public void It_is_drawn_in_the_colour_kept_for_exactly_this()
+    {
+        // "Unique sem preco - pode valer qualquer coisa" was a colour in the
+        // settings that nothing on the ground ever used.
+        var options = new LootSettings();
+
+        var canvas = Draw(
+            options,
+            Unique("Art/2DItems/Armours/BodyArmours/Nowhere", "Wayfarer Jacket"),
+            Tag("Wayfarer Jacket"));
+
+        Assert.Contains(canvas.ColouredTexts, w =>
+            w.Text.Contains("unique", StringComparison.OrdinalIgnoreCase) &&
+            w.Colour == unchecked((uint)options.UnknownColour));
+    }
+
+    [Fact]
+    public void A_rare_with_no_price_stays_quiet()
+    {
+        // The rule is about uniques only. Everything else with no price is
+        // genuinely not worth a line, and marking it would put a chip on most
+        // of the floor while levelling.
+        var canvas = Draw(
+            new LootSettings(),
+            Drop("Art/2DItems/Armours/BodyArmours/Nowhere", "Wayfarer Jacket"),
+            Tag("Wayfarer Jacket"));
+
+        Assert.Empty(canvas.Texts);
+    }
+
+    [Fact]
+    public void It_can_be_switched_off()
+    {
+        var canvas = Draw(
+            new LootSettings { ShowUnpricedUniques = false },
+            Unique("Art/2DItems/Armours/BodyArmours/Nowhere", "Wayfarer Jacket"),
+            Tag("Wayfarer Jacket"));
+
+        Assert.Empty(canvas.Texts);
+    }
+
+    private static EntitySnapshot Unique(string art, string baseName) =>
+        RadarFixture.Entity(1, new Vector3(0, 0, 0), "Metadata/MiscellaneousObjects/WorldItem") with
+        {
+            Kind = EntityKind.Other,
+            Item = new ItemSnapshot(art, baseName, MonsterRarity.Unique, Identified: false),
+        };
 
     private static ImmutableArray<LootLabelSnapshot> Tag(string text) =>
         ImmutableArray.Create(new LootLabelSnapshot(text, 940f, 520f, 160f, 33f));
