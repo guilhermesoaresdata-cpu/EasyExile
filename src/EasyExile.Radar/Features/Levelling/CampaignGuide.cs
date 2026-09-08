@@ -1,5 +1,7 @@
 ﻿namespace EasyExile.Radar.Features.Levelling;
 
+using static EasyExile.Radar.UI.Text;
+
 /// <summary>What a campaign step asks you to do.</summary>
 public enum StepAction
 {
@@ -249,11 +251,11 @@ public sealed record CampaignStep(
     /// </remarks>
     public string Text => Action switch
     {
-        StepAction.Enter => $"Va para {Subject}",
-        StepAction.Waypoint => "Volte para a cidade pelo waypoint ou portal",
-        StepAction.Kill => $"Mate {Subject}",
-        StepAction.Take => $"Pegue {Subject}",
-        StepAction.Talk => $"Fale com {Subject}",
+        StepAction.Enter => T("Va para ") + Subject,
+        StepAction.Waypoint => T("Volte para a cidade pelo waypoint ou portal"),
+        StepAction.Kill => T("Mate ") + Subject,
+        StepAction.Take => T("Pegue ") + Subject,
+        StepAction.Talk => T("Fale com ") + Subject,
         _ => Subject,
     };
 }

@@ -7,6 +7,8 @@ using EasyExile.Radar.Settings.Loot;
 
 namespace EasyExile.Radar.Features.Loot;
 
+using static EasyExile.Radar.UI.Text;
+
 /// <summary>
 /// A loot filter for item panels: marks what is worth something, and what might
 /// be, without asking you to hover each square.
@@ -44,7 +46,7 @@ public sealed class SlotHighlightFeature : IRadarFeature
         _cursor = cursor;
     }
 
-    public string Name => "Destaque de itens valiosos";
+    public string Name => T("Destaque de itens valiosos");
 
     public bool Enabled => _settings.Loot.Enabled && _settings.Loot.HighlightSlots;
 

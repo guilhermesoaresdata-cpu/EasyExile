@@ -9,6 +9,8 @@ using EasyExile.Radar.Settings.NativeMap;
 using EasyExile.Radar.Settings.Player;
 using ImGuiNET;
 
+using static EasyExile.Radar.UI.Text;
+
 namespace EasyExile.Radar.UI;
 
 /// <summary>
@@ -93,6 +95,11 @@ internal sealed class SettingsWindow
     {
         _loop = loop;
 
+        // Set here rather than once at start-up: the setting is loaded from disk
+        // after construction, and a language chosen last session has to apply
+        // before the first frame is drawn rather than after the first change.
+        Text.Current = _settings.General.Language;
+
         ImGui.SetNextWindowSize(new System.Numerics.Vector2(420, 380), ImGuiCond.FirstUseEver);
         ImGui.SetNextWindowPos(new System.Numerics.Vector2(60, 60), ImGuiCond.FirstUseEver);
 
@@ -115,7 +122,7 @@ internal sealed class SettingsWindow
         // that some later feature has to remember not to fight.
         Style();
 
-        if (!ImGui.Begin("EasyExile"))
+        if (!ImGui.Begin(T("EasyExile")))
         {
             Bounds = null;
             ImGui.End();
@@ -139,62 +146,75 @@ internal sealed class SettingsWindow
         ImGui.TextDisabled($"{VirtualKey.Name(_settings.General.HudInteractiveHotkey)} volta para o modo HUD");
         ImGui.Separator();
 
-        if (ImGui.BeginTabBar("categorias"))
+        if (ImGui.BeginTabBar(T("categorias")))
         {
-            if (ImGui.BeginTabItem("Geral"))
+            if (ImGui.BeginTabItem(T("Geral")))
             {
                 DrawGeneral();
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Loot"))
+            if (ImGui.BeginTabItem(T("Loot")))
             {
                 DrawLoot();
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Vida"))
+            if (ImGui.BeginTabItem(T("Vida")))
             {
                 DrawHpBars();
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Poção"))
+            if (ImGui.BeginTabItem(T("Poção")))
             {
                 DrawAutoPotion();
                 ImGui.EndTabItem();
             }
 
-            if (_navigator is not null && ImGui.BeginTabItem("Rotas"))
+            if (_navigator is not null && ImGui.BeginTabItem(T("Rotas")))
             {
                 DrawNavigation();
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Leveling"))
+            if (ImGui.BeginTabItem(T("Leveling")))
             {
                 DrawLevelling();
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Mapa"))
+            if (ImGui.BeginTabItem(T("Mapa")))
             {
                 DrawNativeMap();
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("HUD"))
+            if (ImGui.BeginTabItem(T("HUD")))
             {
                 DrawPlayer();
                 ImGui.EndTabItem();
             }
 
-            if (ImGui.BeginTabItem("Debug"))
+            if (ImGui.BeginTabItem(T("Debug")))
             {
                 DrawDebug(loop, stats);
 
                 ImGui.Separator();
-                ImGui.TextDisabled("DevTree");
+                ImGui.TextDisabled(T("Analises"));
+
+        ImGui.TextDisabled(T("Analises"));
+
+        ImGui.TextDisabled(T("Mostra na tela do jogo o que uma analise precisa que voce faca,"));
+        ImGui.TextDisabled(T("com a contagem do tempo restante."));
+
+        var prompts = _settings.General.ShowProbePrompts;
+        if (ImGui.Checkbox(T("Pedidos na tela##probe"), ref prompts))
+            _settings.General = _settings.General with { ShowProbePrompts = prompts };
+
+
+                ImGui.Separator();
+                ImGui.TextDisabled(T("DevTree"));
 
                 DrawDevTree(loop);
                 ImGui.EndTabItem();
@@ -210,37 +230,48 @@ internal sealed class SettingsWindow
 
     private void DrawGeneral()
     {
+        var idiom = (int)_settings.General.Language;
+
+        if (ImGui.Combo(T("Idioma"), ref idiom, LanguageNames, LanguageNames.Length))
+        {
+            _settings.General = _settings.General with { Language = (Language)idiom };
+
+            Text.Current = _settings.General.Language;
+        }
+
+        ImGui.Separator();
+
         // Applied on restart, because the window's frame limit is set when the
         // window is created. Lowering it saves nothing measurable — the cost is
         // the world walk — so it is here for a machine that needs it, not as a
         // default.
         var frames = _settings.General.RenderFps;
-        if (ImGui.SliderInt("Quadros por segundo do overlay", ref frames, 30, 240))
+        if (ImGui.SliderInt(T("Quadros por segundo do overlay"), ref frames, 30, 240))
             _settings.General = _settings.General with { RenderFps = frames };
 
-        ImGui.TextDisabled("aplica ao reiniciar o EasyExile");
+        ImGui.TextDisabled(T("aplica ao reiniciar o EasyExile"));
         ImGui.Separator();
 
         var general = _settings.General;
 
         var enabled = general.Enabled;
-        if (ImGui.Checkbox("Captura ativa", ref enabled))
+        if (ImGui.Checkbox(T("Captura ativa"), ref enabled))
             _settings.General = general with { Enabled = enabled };
 
         var rate = general.UpdateRateHz;
-        if (ImGui.SliderInt("Capturas por segundo", ref rate, 1, 60))
+        if (ImGui.SliderInt(T("Capturas por segundo"), ref rate, 1, 60))
             _settings.General = general with { UpdateRateHz = rate };
 
         var max = general.MaxEntities;
-        if (ImGui.SliderInt("Maximo de entidades", ref max, 16, 2048))
+        if (ImGui.SliderInt(T("Maximo de entidades"), ref max, 16, 2048))
             _settings.General = general with { MaxEntities = max };
 
         var unfocused = general.ShowWhenGameUnfocused;
-        if (ImGui.Checkbox("Mostrar com o jogo fora de foco", ref unfocused))
+        if (ImGui.Checkbox(T("Mostrar com o jogo fora de foco"), ref unfocused))
             _settings.General = general with { ShowWhenGameUnfocused = unfocused };
 
         ImGui.Spacing();
-        ImGui.TextDisabled("A taxa de renderizacao e independente da captura.");
+        ImGui.TextDisabled(T("A taxa de renderizacao e independente da captura."));
     }
 
     /// <summary>
@@ -256,38 +287,38 @@ internal sealed class SettingsWindow
     {
         var navigator = _navigator!;
 
-        ImGui.TextDisabled("Escolha um destino. A rota aparece no mapa do jogo.");
+        ImGui.TextDisabled(T("Escolha um destino. A rota aparece no mapa do jogo."));
         ImGui.Separator();
 
         var routes = _settings.NativeMap.ShowRoutes;
-        if (ImGui.Checkbox("Desenhar rotas", ref routes))
+        if (ImGui.Checkbox(T("Desenhar rotas"), ref routes))
             _settings.NativeMap = _settings.NativeMap with { ShowRoutes = routes };
 
         var world = _settings.NativeMap.ShowWorldRoute;
-        if (ImGui.Checkbox("Trilha no mundo com o mapa fechado", ref world))
+        if (ImGui.Checkbox(T("Trilha no mundo com o mapa fechado"), ref world))
             _settings.NativeMap = _settings.NativeMap with { ShowWorldRoute = world };
 
         var destination = _settings.NativeMap.ShowDestinationName;
-        if (ImGui.Checkbox("Nome do destino na trilha", ref destination))
+        if (ImGui.Checkbox(T("Nome do destino na trilha"), ref destination))
             _settings.NativeMap = _settings.NativeMap with { ShowDestinationName = destination };
 
         ImGui.Separator();
 
         var mechanic = _settings.NativeMap.AutoRouteLeagueMechanic;
-        if (ImGui.Checkbox("Rotear a mecanica da liga ao chegar", ref mechanic))
+        if (ImGui.Checkbox(T("Rotear a mecanica da liga ao chegar"), ref mechanic))
             _settings.NativeMap = _settings.NativeMap with { AutoRouteLeagueMechanic = mechanic };
 
         var exits = _settings.NativeMap.AutoRouteExits;
-        if (ImGui.Checkbox("Rotear saidas ao chegar", ref exits))
+        if (ImGui.Checkbox(T("Rotear saidas ao chegar"), ref exits))
             _settings.NativeMap = _settings.NativeMap with { AutoRouteExits = exits };
 
-        if (ImGui.Button("Limpar tudo")) navigator.Clear();
+        if (ImGui.Button(T("Limpar tudo"))) navigator.Clear();
 
         ImGui.Separator();
 
         if (_targets.Count == 0)
         {
-            ImGui.TextDisabled("Nenhum destino nesta area ainda.");
+            ImGui.TextDisabled(T("Nenhum destino nesta area ainda."));
             return;
         }
 
@@ -352,54 +383,54 @@ internal sealed class SettingsWindow
         var levelling = _settings.Levelling;
 
         ImGui.TextColored(ToVec4(Palette.Warning), "BETA - em construcao");
-        ImGui.TextDisabled("O guia usa o mesmo sistema de rota: desenha o caminho ate a saida certa.");
+        ImGui.TextDisabled(T("O guia usa o mesmo sistema de rota: desenha o caminho ate a saida certa."));
         ImGui.Separator();
 
         var enabled = levelling.Enabled;
-        if (ImGui.Checkbox("Ativado##lvl", ref enabled))
+        if (ImGui.Checkbox(T("Ativado##lvl"), ref enabled))
             _settings.Levelling = levelling with { Enabled = enabled };
 
         var auto = levelling.AutoRoute;
-        if (ImGui.Checkbox("Rotear automaticamente para o proximo passo", ref auto))
+        if (ImGui.Checkbox(T("Rotear automaticamente para o proximo passo"), ref auto))
             _settings.Levelling = levelling with { AutoRoute = auto };
 
         var recording = levelling.Recording;
-        if (ImGui.Checkbox("Gravar a rota enquanto joga", ref recording))
+        if (ImGui.Checkbox(T("Gravar a rota enquanto joga"), ref recording))
             _settings.Levelling = levelling with { Recording = recording };
 
         ImGui.Separator();
-        ImGui.TextDisabled("Passos na tela");
+        ImGui.TextDisabled(T("Passos na tela"));
 
         // The guide is useless inside this window: nobody plays with it open.
         var steps = levelling.ShowSteps;
-        if (ImGui.Checkbox("Mostrar os passos por cima do jogo", ref steps))
+        if (ImGui.Checkbox(T("Mostrar os passos por cima do jogo"), ref steps))
             _settings.Levelling = levelling with { ShowSteps = steps };
 
         var corner = Corner("Canto##lvl", levelling.Corner);
         if (corner != levelling.Corner) _settings.Levelling = levelling with { Corner = corner };
 
         var visible = levelling.VisibleSteps;
-        if (ImGui.SliderInt("Quantos passos##lvl", ref visible, 0, 10))
+        if (ImGui.SliderInt(T("Quantos passos##lvl"), ref visible, 0, 10))
             _settings.Levelling = levelling with { VisibleSteps = visible };
 
         var optional = levelling.ShowOptional;
-        if (ImGui.Checkbox("Incluir os opcionais", ref optional))
+        if (ImGui.Checkbox(T("Incluir os opcionais"), ref optional))
             _settings.Levelling = levelling with { ShowOptional = optional };
 
         var scale = levelling.TextScale;
-        if (ImGui.SliderFloat("Tamanho do texto##lvl", ref scale, 0.6f, 2.5f, "%.2f"))
+        if (ImGui.SliderFloat(T("Tamanho do texto##lvl"), ref scale, 0.6f, 2.5f, "%.2f"))
             _settings.Levelling = levelling with { TextScale = scale };
 
         var opacity = levelling.Opacity;
-        if (ImGui.SliderFloat("Opacidade do fundo##lvl", ref opacity, 0f, 1f, "%.2f"))
+        if (ImGui.SliderFloat(T("Opacidade do fundo##lvl"), ref opacity, 0f, 1f, "%.2f"))
             _settings.Levelling = levelling with { Opacity = opacity };
 
         ImGui.Separator();
         ImGui.TextColored(ToVec4(Palette.Warning), "Diario da campanha (BETA)");
-        ImGui.TextDisabled("Anota o que cada zona REALMENTE tinha, para corrigir o guia depois.");
+        ImGui.TextDisabled(T("Anota o que cada zona REALMENTE tinha, para corrigir o guia depois."));
 
         var journal = levelling.Journal;
-        if (ImGui.Checkbox("Gravar campaign-journal.txt", ref journal))
+        if (ImGui.Checkbox(T("Gravar campaign-journal.txt"), ref journal))
             _settings.Levelling = levelling with { Journal = journal };
 
         if (_guide is not null)
@@ -416,7 +447,7 @@ internal sealed class SettingsWindow
 
         ImGui.Separator();
 
-        ImGui.Text("voce esta em:  " + _guide.Here);
+        ImGui.Text(T("voce esta em:  ") + _guide.Here);
 
         // Whether a path is actually being drawn, said out loud. "It knows where
         // to go and does not do it" was true and invisible: the objective and
@@ -424,7 +455,7 @@ internal sealed class SettingsWindow
         if (_guide.Routing)
             ImGui.TextColored(ToVec4(Palette.Good), "desenhando:    " + _guide.Objective);
         else
-            ImGui.TextDisabled("parado:        " + _guide.Objective);
+            ImGui.TextDisabled(T("parado:        ") + _guide.Objective);
 
         // What to DO here, not only where to go next. The route answers "which
         // door"; this answers the other half, which no tool that cannot see
@@ -443,9 +474,9 @@ internal sealed class SettingsWindow
             var line = step.Hint is { Length: > 0 } hint ? $"{step.Text} — {hint}" : step.Text;
 
             if (step.Optional)
-                ImGui.TextDisabled("  opt  " + line);
+                ImGui.TextDisabled(T("  opt  ") + line);
             else
-                ImGui.TextWrapped("  -  " + line);
+                ImGui.TextWrapped(T("  -  ") + line);
         }
     }
 
@@ -545,6 +576,9 @@ internal sealed class SettingsWindow
         ImGui.TextDisabled(meaning);
     }
 
+    /// <summary>Each in its own language, so neither reader has to guess.</summary>
+    private static readonly string[] LanguageNames = ["Portugues (BR)", "English"];
+
     private static readonly string[] CornerNames =
         ["inferior esquerdo", "inferior direito", "superior esquerdo", "superior direito", "acima", "abaixo"];
 
@@ -563,11 +597,19 @@ internal sealed class SettingsWindow
         "Canto inferior esquerdo", "Canto inferior direito",
     ];
 
+    /// <summary>The options of a dropdown, in the chosen language.</summary>
+    /// <remarks>
+    /// Translated where they are used rather than where they are declared: the
+    /// arrays are static and the language is not.
+    /// </remarks>
+    private static string[] Translated(string[] options) =>
+        Text.Current == Language.PtBr ? options : options.Select(T).ToArray();
+
     private static ChipCorner Corner(string label, ChipCorner current)
     {
         var index = (int)current;
 
-        return ImGui.Combo(label, ref index, CornerNames, CornerNames.Length)
+        return ImGui.Combo(label, ref index, Translated(CornerNames), CornerNames.Length)
             ? (ChipCorner)index
             : current;
     }
@@ -672,15 +714,15 @@ internal sealed class SettingsWindow
     {
         // No modifiers anywhere: shift and control are the game's, and holding
         // one to record also does whatever the game does with it.
-        ImGui.TextDisabled("F11  grava so o que se relaciona com o que esta sob o cursor:");
-        ImGui.TextDisabled("     pais, subarvore, irmaos, bytes e offsets - nada mais");
-        ImGui.TextDisabled("F12  grava a arvore inteira, inclusive oculta  (arquivo grande)");
-        ImGui.TextDisabled("F8   contorna o que esta sob o cursor");
-        ImGui.TextDisabled("saida: .jsonl em 'trees', uma linha por elemento");
+        ImGui.TextDisabled(T("F11  grava so o que se relaciona com o que esta sob o cursor:"));
+        ImGui.TextDisabled(T("     pais, subarvore, irmaos, bytes e offsets - nada mais"));
+        ImGui.TextDisabled(T("F12  grava a arvore inteira, inclusive oculta  (arquivo grande)"));
+        ImGui.TextDisabled(T("F8   contorna o que esta sob o cursor"));
+        ImGui.TextDisabled(T("saida: .jsonl em 'trees', uma linha por elemento"));
 
         var aiming = loop.Inspecting;
 
-        if (ImGui.Checkbox("Apontador##devtree", ref aiming)) loop.Inspecting = aiming;
+        if (ImGui.Checkbox(T("Apontador##devtree"), ref aiming)) loop.Inspecting = aiming;
 
         // Searching is the one thing that cannot be a key: it needs a word.
         // "I can see this on screen, where does it live" is the question that
@@ -690,10 +732,10 @@ internal sealed class SettingsWindow
 
         ImGui.SameLine();
 
-        if (ImGui.Button("Procurar##devtree") && _needle.Length > 0)
+        if (ImGui.Button(T("Procurar##devtree")) && _needle.Length > 0)
             loop.SaveDump(Core.Diagnostics.DumpOptions.Find(_needle));
 
-        ImGui.TextDisabled("procura texto, inteiro ou float; grava o caminho de cada acerto");
+        ImGui.TextDisabled(T("procura texto, inteiro ou float; grava o caminho de cada acerto"));
 
         if (loop.LastDump is { Length: > 0 } last) ImGui.TextDisabled($"ultimo: {last}");
 
@@ -704,147 +746,194 @@ internal sealed class SettingsWindow
         foreach (var line in probe.Describe()) ImGui.TextUnformatted(line);
     }
 
+    /// <summary>
+    /// What this character is building, and what is short of a cap.
+    /// </summary>
+    /// <remarks>
+    /// With the other item marks rather than with levelling. Levelling is where
+    /// they matter most and it is also a beta, and these two do not depend on
+    /// any of it: they read the item and the character, work in every panel the
+    /// game has, and keep working long after the campaign is over.
+    /// </remarks>
+    private void DrawBuildTags()
+    {
+        var loot = _settings.Loot;
+
+        ImGui.TextDisabled(T("Marca itens com mods que ajudam o que voce esta montando."));
+
+        var mask = loot.BuildTagMask;
+
+        foreach (var (tag, label) in BuildTagLabels)
+        {
+            var on = (mask & (int)tag) != 0;
+
+            if (ImGui.Checkbox(label, ref on))
+            {
+                mask = on ? mask | (int)tag : mask & ~(int)tag;
+
+                _settings.Loot = loot with { BuildTagMask = mask };
+            }
+
+            if (tag is not (Settings.Loot.BuildTag.Crit or Settings.Loot.BuildTag.Spirit))
+                ImGui.SameLine();
+        }
+
+        ImGui.NewLine();
+
+        ImGui.Separator();
+        ImGui.TextDisabled(T("Resistencias"));
+        ImGui.TextDisabled(T("Marca itens que fecham uma resist que ainda nao esta capada."));
+        ImGui.TextDisabled(T("Some sozinho quando tudo estiver em 75."));
+
+        var resists = loot.ShowResistanceHelp;
+        if (ImGui.Checkbox(T("Marcar o que falta##resist"), ref resists))
+            _settings.Loot = loot with { ShowResistanceHelp = resists };
+
+        if (resists)
+        {
+            var resistCorner = Corner("Canto##resist", loot.ResistanceCorner);
+            if (resistCorner != loot.ResistanceCorner)
+                _settings.Loot = loot with { ResistanceCorner = resistCorner };
+
+            var resistColour = Colour("Cor##resist", loot.ResistanceColour);
+            if (resistColour != loot.ResistanceColour)
+                _settings.Loot = loot with { ResistanceColour = resistColour };
+        }
+
+        ImGui.Separator();
+
+        var corner = Corner("Canto da marca##build", loot.BuildTagCorner);
+        if (corner != loot.BuildTagCorner) _settings.Loot = loot with { BuildTagCorner = corner };
+
+        var colour = Colour("Cor da marca##build", loot.BuildTagColour);
+        if (colour != loot.BuildTagColour) _settings.Loot = loot with { BuildTagColour = colour };
+    }
+
+    private static readonly (Settings.Loot.BuildTag Tag, string Label)[] BuildTagLabels =
+    [
+        // Each label carries the mark it produces, so the corner of an item
+        // needs no decoding: what is ticked here is what is drawn there.
+        (Settings.Loot.BuildTag.Minion, "Minion (Mi)"),
+        (Settings.Loot.BuildTag.Projectile, "Projectile (Pj)"),
+        (Settings.Loot.BuildTag.Spell, "Spell (Sp)"),
+        (Settings.Loot.BuildTag.Attack, "Attack (At)"),
+        (Settings.Loot.BuildTag.Fire, "Fire (Fi)"),
+        (Settings.Loot.BuildTag.Cold, "Cold (Co)"),
+        (Settings.Loot.BuildTag.Lightning, "Lightning (Li)"),
+        (Settings.Loot.BuildTag.Chaos, "Chaos (Ch)"),
+        (Settings.Loot.BuildTag.Life, "Life (HP)"),
+        (Settings.Loot.BuildTag.EnergyShield, "Energy Shield (ES)"),
+        (Settings.Loot.BuildTag.Spirit, "Spirit (Sr)"),
+        (Settings.Loot.BuildTag.Crit, "Crit (Cr)"),
+    ];
+
+    /// <summary>
+    /// Loot, in the order somebody actually asks about it.
+    /// </summary>
+    /// <remarks>
+    /// It had grown into a wall: prices, skill supports, analysis prompts, mod
+    /// tiers, colours and categories interleaved, with "position" in two places
+    /// and colours in two more. Folding sections, one order, and every mark
+    /// explained where it is switched on - nobody should have to work out what
+    /// "Mi" means from the corner of an item.
+    /// </remarks>
     private void DrawLoot()
     {
         var loot = _settings.Loot;
 
-        ImGui.TextDisabled("Preco poe.ninja sobre os drops. A liga vem do proprio jogo.");
+        if (ImGui.CollapsingHeader(T("Precos"), ImGuiTreeNodeFlags.DefaultOpen))
+        {
+        ImGui.TextDisabled(T("Preco poe.ninja sobre os drops. A liga vem do proprio jogo."));
         ImGui.Separator();
 
         var enabled = loot.Enabled;
-        if (ImGui.Checkbox("Ativado##loot", ref enabled))
+        if (ImGui.Checkbox(T("Ativado##loot"), ref enabled))
             _settings.Loot = loot with { Enabled = enabled };
 
         // One floor per bucket, because five Exalted is an unremarkable unique
         // and an extraordinary scroll.
         var uniqueFloor = loot.UniqueMinimumExalted;
-        if (ImGui.SliderFloat("Minimo uniques (ex)", ref uniqueFloor, 0f, 100f))
+        if (ImGui.SliderFloat(T("Minimo uniques (ex)"), ref uniqueFloor, 0f, 100f))
             _settings.Loot = loot with { UniqueMinimumExalted = uniqueFloor };
 
         var currencyFloor = loot.CurrencyMinimumExalted;
-        if (ImGui.SliderFloat("Minimo moedas (ex)", ref currencyFloor, 0f, 100f))
+        if (ImGui.SliderFloat(T("Minimo moedas (ex)"), ref currencyFloor, 0f, 100f))
             _settings.Loot = loot with { CurrencyMinimumExalted = currencyFloor };
 
         var otherFloor = loot.OtherMinimumExalted;
-        if (ImGui.SliderFloat("Minimo resto (ex)", ref otherFloor, 0f, 100f))
+        if (ImGui.SliderFloat(T("Minimo resto (ex)"), ref otherFloor, 0f, 100f))
             _settings.Loot = loot with { OtherMinimumExalted = otherFloor };
 
         var highlight = loot.HighlightExalted;
-        if (ImGui.SliderFloat("Destacar acima de (ex)", ref highlight, 1f, 500f))
+        if (ImGui.SliderFloat(T("Destacar acima de (ex)"), ref highlight, 1f, 500f))
             _settings.Loot = loot with { HighlightExalted = highlight };
 
         var anchored = loot.AnchorValuesToTags;
-        if (ImGui.Checkbox("Preco na tag do jogo", ref anchored))
+        if (ImGui.Checkbox(T("Preco na tag do jogo"), ref anchored))
             _settings.Loot = loot with { AnchorValuesToTags = anchored };
 
         var hover = loot.ShowHoverPrice;
-        if (ImGui.Checkbox("Preco sob o cursor (inventario/stash)", ref hover))
+        if (ImGui.Checkbox(T("Preco sob o cursor (inventario/stash)"), ref hover))
             _settings.Loot = loot with { ShowHoverPrice = hover };
 
         var highlightSlots = loot.HighlightSlots;
-        if (ImGui.Checkbox("Destacar itens valiosos nos paineis", ref highlightSlots))
+        if (ImGui.Checkbox(T("Destacar itens valiosos nos paineis"), ref highlightSlots))
             _settings.Loot = loot with { HighlightSlots = highlightSlots };
 
         var slotValues = loot.ShowSlotValues;
-        if (ImGui.Checkbox("Mostrar o valor dentro do slot", ref slotValues))
+        if (ImGui.Checkbox(T("Mostrar o valor dentro do slot"), ref slotValues))
             _settings.Loot = loot with { ShowSlotValues = slotValues };
 
         var reveal = loot.RevealNames;
-        if (ImGui.Checkbox("Nome real acima da tag do chao", ref reveal))
+        if (ImGui.Checkbox(T("Nome real acima da tag do chao"), ref reveal))
             _settings.Loot = loot with { RevealNames = reveal };
 
         var nameUniques = loot.NameUniques;
-        if (ImGui.Checkbox("Escrever o nome do unique junto do preco", ref nameUniques))
+        if (ImGui.Checkbox(T("Escrever o nome do unique junto do preco"), ref nameUniques))
             _settings.Loot = loot with { NameUniques = nameUniques };
 
         var minQuantity = loot.MinQuantity;
-        if (ImGui.SliderInt("Anuncios minimos (abaixo disso marca ?)", ref minQuantity, 0, 50))
+        if (ImGui.SliderInt(T("Anuncios minimos (abaixo disso marca ?)"), ref minQuantity, 0, 50))
             _settings.Loot = loot with { MinQuantity = minQuantity };
 
-        ImGui.Separator();
-        ImGui.TextDisabled("Posicao dos valores");
+            ImGui.TextDisabled(T("Posicao dos valores"));
+
+        ImGui.TextDisabled(T("Posicao dos valores"));
 
         var slotCorner = Corner("Valor no slot", loot.SlotValueCorner);
         if (slotCorner != loot.SlotValueCorner) _settings.Loot = loot with { SlotValueCorner = slotCorner };
 
-        ImGui.Separator();
-        ImGui.TextDisabled("Suportes da skill");
 
-        ImGui.TextDisabled("Passe o mouse numa skill para ver os suportes recomendados.");
-        ImGui.TextDisabled("Sao recomendacoes do poe2db, nao contagem de builds reais.");
-
-        var skillSupports = loot.ShowSkillSupports;
-        if (ImGui.Checkbox("Mostrar suportes##skill", ref skillSupports))
-            _settings.Loot = loot with { ShowSkillSupports = skillSupports };
-
-        if (skillSupports)
-        {
-            var howMany = loot.SkillSupportCount;
-            if (ImGui.SliderInt("Quantos##skill", ref howMany, 1, 10))
-                _settings.Loot = loot with { SkillSupportCount = howMany };
-
-            if (loot.SkillSupportAnchor == Settings.Loot.SkillSupportAnchor.BesideSkill)
-            {
-                var away = loot.SkillSupportGap;
-                if (ImGui.SliderFloat("Distancia da skill##skillgap", ref away, 0f, 0.6f, "%.2f"))
-                    _settings.Loot = loot with { SkillSupportGap = away };
-            }
-
-            if (loot.SkillSupportAnchor == Settings.Loot.SkillSupportAnchor.Free)
-            {
-                var px = loot.SkillSupportX;
-                if (ImGui.SliderFloat("Horizontal##skillpos", ref px, 0f, 1f, "%.2f"))
-                    _settings.Loot = loot with { SkillSupportX = px };
-
-                var py = loot.SkillSupportY;
-                if (ImGui.SliderFloat("Vertical##skillpos", ref py, 0f, 1f, "%.2f"))
-                    _settings.Loot = loot with { SkillSupportY = py };
-            }
-
-            var boxes = loot.DebugSkillCaptions;
-            if (ImGui.Checkbox("Debug: desenhar as caixas dos rotulos##skill", ref boxes))
-                _settings.Loot = loot with { DebugSkillCaptions = boxes };
-
-            var where = (int)loot.SkillSupportAnchor;
-            if (ImGui.Combo("Onde##skill", ref where, SkillAnchorNames, SkillAnchorNames.Length))
-                _settings.Loot = loot with
-                {
-                    SkillSupportAnchor = (Settings.Loot.SkillSupportAnchor)where,
-                };
+        var hoverCorner = Corner("Valor sob o cursor", loot.HoverCorner);
+        if (hoverCorner != loot.HoverCorner) _settings.Loot = loot with { HoverCorner = hoverCorner };
         }
 
-        ImGui.Separator();
-        ImGui.TextDisabled("Analises");
+        if (ImGui.CollapsingHeader(T("Marcas nos itens")))
+        {
+            DrawMarkLegend();
 
-        ImGui.TextDisabled("Mostra na tela do jogo o que uma analise precisa que voce faca,");
-        ImGui.TextDisabled("com a contagem do tempo restante.");
+            ImGui.TextDisabled(T("Tier dos mods"));
 
-        var prompts = _settings.General.ShowProbePrompts;
-        if (ImGui.Checkbox("Pedidos na tela##probe", ref prompts))
-            _settings.General = _settings.General with { ShowProbePrompts = prompts };
 
-        ImGui.Separator();
-        ImGui.TextDisabled("Tier dos mods");
-
-        ImGui.TextDisabled("Marca o slot quando o item tem um roll bom. Sem passar o mouse.");
+        ImGui.TextDisabled(T("Marca o slot quando o item tem um roll bom. Sem passar o mouse."));
 
         var tiers = loot.ShowModTiers;
-        if (ImGui.Checkbox("Marcar os slots##tier", ref tiers))
+        if (ImGui.Checkbox(T("Marcar os slots##tier"), ref tiers))
             _settings.Loot = loot with { ShowModTiers = tiers };
 
         var onTooltip = loot.ModTierOnTooltip;
-        if (ImGui.Checkbox("Mostrar no inicio da linha do item##tier", ref onTooltip))
+        if (ImGui.Checkbox(T("Mostrar no inicio da linha do item##tier"), ref onTooltip))
             _settings.Loot = loot with { ModTierOnTooltip = onTooltip };
 
         var alert = loot.ModTierAlert;
-        if (ImGui.SliderInt("Destacar ate T##tier", ref alert, 1, 8))
+        if (ImGui.SliderInt(T("Destacar ate T##tier"), ref alert, 1, 8))
             _settings.Loot = loot with { ModTierAlert = alert };
 
         var tierCorner = Corner("Canto da marca##tier", loot.ModTierCorner);
         if (tierCorner != loot.ModTierCorner) _settings.Loot = loot with { ModTierCorner = tierCorner };
 
         var tierScale = loot.ModTierScale;
-        if (ImGui.SliderFloat("Tamanho##tier", ref tierScale, 0.5f, 2.5f, "%.2f"))
+        if (ImGui.SliderFloat(T("Tamanho##tier"), ref tierScale, 0.5f, 2.5f, "%.2f"))
             _settings.Loot = loot with { ModTierScale = tierScale };
 
         // A colour per tier, because which one earns a glance is personal and
@@ -858,13 +947,60 @@ internal sealed class SettingsWindow
         var t3 = Colour("T3##tier", loot.ModTier3Colour);
         if (t3 != loot.ModTier3Colour) _settings.Loot = loot with { ModTier3Colour = t3 };
 
-        ImGui.Separator();
+            ImGui.Separator();
 
-        var hoverCorner = Corner("Valor sob o cursor", loot.HoverCorner);
-        if (hoverCorner != loot.HoverCorner) _settings.Loot = loot with { HoverCorner = hoverCorner };
+            DrawBuildTags();
+        }
 
-        ImGui.Separator();
-        ImGui.TextDisabled("Cores dos destaques");
+        if (ImGui.CollapsingHeader(T("Suportes da skill")))
+        {
+
+        ImGui.TextDisabled(T("Passe o mouse numa skill para ver os suportes recomendados."));
+        ImGui.TextDisabled(T("Sao recomendacoes do poe2db, nao contagem de builds reais."));
+
+        var skillSupports = loot.ShowSkillSupports;
+        if (ImGui.Checkbox(T("Mostrar suportes##skill"), ref skillSupports))
+            _settings.Loot = loot with { ShowSkillSupports = skillSupports };
+
+        if (skillSupports)
+        {
+            var howMany = loot.SkillSupportCount;
+            if (ImGui.SliderInt(T("Quantos##skill"), ref howMany, 1, 10))
+                _settings.Loot = loot with { SkillSupportCount = howMany };
+
+            if (loot.SkillSupportAnchor == Settings.Loot.SkillSupportAnchor.BesideSkill)
+            {
+                var away = loot.SkillSupportGap;
+                if (ImGui.SliderFloat(T("Distancia da skill##skillgap"), ref away, 0f, 0.6f, "%.2f"))
+                    _settings.Loot = loot with { SkillSupportGap = away };
+            }
+
+            if (loot.SkillSupportAnchor == Settings.Loot.SkillSupportAnchor.Free)
+            {
+                var px = loot.SkillSupportX;
+                if (ImGui.SliderFloat(T("Horizontal##skillpos"), ref px, 0f, 1f, "%.2f"))
+                    _settings.Loot = loot with { SkillSupportX = px };
+
+                var py = loot.SkillSupportY;
+                if (ImGui.SliderFloat(T("Vertical##skillpos"), ref py, 0f, 1f, "%.2f"))
+                    _settings.Loot = loot with { SkillSupportY = py };
+            }
+
+            var boxes = loot.DebugSkillCaptions;
+            if (ImGui.Checkbox(T("Debug: desenhar as caixas dos rotulos##skill"), ref boxes))
+                _settings.Loot = loot with { DebugSkillCaptions = boxes };
+
+            var where = (int)loot.SkillSupportAnchor;
+            if (ImGui.Combo(T("Onde##skill"), ref where, Translated(SkillAnchorNames), SkillAnchorNames.Length))
+                _settings.Loot = loot with
+                {
+                    SkillSupportAnchor = (Settings.Loot.SkillSupportAnchor)where,
+                };
+            }
+        }
+
+        if (ImGui.CollapsingHeader(T("Cores")))
+        {
 
         // A legend, because the tiers answer different questions and a colour
         // that needs explaining in chat is a colour that needs explaining here.
@@ -893,32 +1029,33 @@ internal sealed class SettingsWindow
         ImGui.Separator();
 
         var scale = loot.TextScale;
-        if (ImGui.SliderFloat("Tamanho do texto", ref scale, 1f, 4f))
+        if (ImGui.SliderFloat(T("Tamanho do texto"), ref scale, 1f, 4f))
             _settings.Loot = loot with { TextScale = scale };
+        }
 
-        ImGui.Separator();
-        ImGui.TextDisabled("Categorias");
+        if (ImGui.CollapsingHeader(T("Categorias e estado")))
+        {
 
         var currency = loot.ShowCurrency;
-        if (ImGui.Checkbox("Moedas, essencias e runas", ref currency))
+        if (ImGui.Checkbox(T("Moedas, essencias e runas"), ref currency))
             _settings.Loot = loot with { ShowCurrency = currency };
 
         var uniques = loot.ShowUniques;
-        if (ImGui.Checkbox("Unicos", ref uniques))
+        if (ImGui.Checkbox(T("Unicos"), ref uniques))
             _settings.Loot = loot with { ShowUniques = uniques };
 
         var gems = loot.ShowGems;
-        if (ImGui.Checkbox("Gemas", ref gems))
+        if (ImGui.Checkbox(T("Gemas"), ref gems))
             _settings.Loot = loot with { ShowGems = gems };
 
         var other = loot.ShowOther;
-        if (ImGui.Checkbox("Outros", ref other))
+        if (ImGui.Checkbox(T("Outros"), ref other))
             _settings.Loot = loot with { ShowOther = other };
 
         if (_prices is null) return;
 
         ImGui.Separator();
-        ImGui.TextDisabled("estado");
+        ImGui.TextDisabled(T("estado"));
 
         static void Row(string label, string value)
         {
@@ -930,46 +1067,68 @@ internal sealed class SettingsWindow
         Row("liga", _prices.League is { Length: > 0 } ? _prices.League : "detectando");
         Row("precos", _prices.IsLoaded ? $"{_prices.ItemCount} itens" : _prices.Status);
         Row("ex por divine", $"{_prices.ExPerDivine:0.#}");
+        }
     }
+
+    /// <summary>
+    /// What each mark on an item means.
+    /// </summary>
+    /// <remarks>
+    /// Three features mark the same slot from three corners, and from the game
+    /// they read as "Mi +F S3" with nothing to decode them by. The legend lives
+    /// beside the switches that turn them on, which is where somebody is
+    /// looking at the moment they wonder.
+    /// </remarks>
+    private static void DrawMarkLegend()
+    {
+        ImGui.TextDisabled(T("Legenda das marcas no canto do item:"));
+        ImGui.TextDisabled(T("  P1 S1    melhor roll: P=prefixo S=sufixo, numero=tier"));
+        ImGui.TextDisabled(T("  Mi Pj    ajuda a build escolhida (Minion, Projectile...)"));
+        ImGui.TextDisabled(T("  **       ajuda a build de duas formas"));
+        ImGui.TextDisabled(T("  +F +C    fecha resist que falta: F=Fire C=Cold L=Lightning X=Chaos"));
+        ImGui.TextDisabled(T("  1,18 ex  preco estimado"));
+        ImGui.Separator();
+    }
+
 
     /// <summary>Health bars over monsters.</summary>
     private void DrawHpBars()
     {
         var bars = _settings.HpBars;
 
-        ImGui.TextDisabled("Barras sobre os monstros, no mundo. Aparecem com o mapa aberto ou fechado.");
+        ImGui.TextDisabled(T("Barras sobre os monstros, no mundo. Aparecem com o mapa aberto ou fechado."));
         ImGui.Separator();
 
         var enabled = bars.Enabled;
-        if (ImGui.Checkbox("Ativado##hp", ref enabled))
+        if (ImGui.Checkbox(T("Ativado##hp"), ref enabled))
             _settings.HpBars = bars with { Enabled = enabled };
 
         var normal = bars.ShowNormal;
-        if (ImGui.Checkbox("Normais", ref normal))
+        if (ImGui.Checkbox(T("Normais"), ref normal))
             _settings.HpBars = bars with { ShowNormal = normal };
 
-        if (normal) ImGui.TextDisabled("Uma barra em cada lixo é a tela, não informação.");
+        if (normal) ImGui.TextDisabled(T("Uma barra em cada lixo é a tela, não informação."));
 
         var magic = bars.ShowMagic;
-        if (ImGui.Checkbox("Magicos", ref magic))
+        if (ImGui.Checkbox(T("Magicos"), ref magic))
             _settings.HpBars = bars with { ShowMagic = magic };
 
         var rare = bars.ShowRare;
-        if (ImGui.Checkbox("Raros", ref rare))
+        if (ImGui.Checkbox(T("Raros"), ref rare))
             _settings.HpBars = bars with { ShowRare = rare };
 
         var unique = bars.ShowUnique;
-        if (ImGui.Checkbox("Unicos", ref unique))
+        if (ImGui.Checkbox(T("Unicos"), ref unique))
             _settings.HpBars = bars with { ShowUnique = unique };
 
         ImGui.Separator();
 
         var height = bars.Height;
-        if (ImGui.SliderFloat("Altura", ref height, 2f, 14f))
+        if (ImGui.SliderFloat(T("Altura"), ref height, 2f, 14f))
             _settings.HpBars = bars with { Height = height };
 
         var offset = bars.OffsetY;
-        if (ImGui.SliderFloat("Distancia acima", ref offset, -80f, 0f))
+        if (ImGui.SliderFloat(T("Distancia acima"), ref offset, -80f, 0f))
             _settings.HpBars = bars with { OffsetY = offset };
     }
 
@@ -984,7 +1143,7 @@ internal sealed class SettingsWindow
             armed ? new System.Numerics.Vector4(0.4f, 1f, 0.5f, 1f) : new System.Numerics.Vector4(1f, 0.5f, 0.4f, 1f),
             armed ? "AUTO POTION: ON" : "AUTO POTION: OFF");
 
-        ImGui.TextDisabled("F8 liga e desliga dentro do jogo.");
+        ImGui.TextDisabled(T("F8 liga e desliga dentro do jogo."));
 
         if (potion is not null)
         {
@@ -995,55 +1154,55 @@ internal sealed class SettingsWindow
         ImGui.Separator();
 
         var enabled = options.Enabled;
-        if (ImGui.Checkbox("Ativado", ref enabled))
+        if (ImGui.Checkbox(T("Ativado"), ref enabled))
             _settings.AutoPotion = options with { Enabled = enabled };
 
         var dry = options.DryRun;
-        if (ImGui.Checkbox("Simulacao (nao aperta tecla)", ref dry))
+        if (ImGui.Checkbox(T("Simulacao (nao aperta tecla)"), ref dry))
             _settings.AutoPotion = options with { DryRun = dry };
 
         ImGui.Separator();
-        ImGui.TextDisabled("Vida");
+        ImGui.TextDisabled(T("Vida"));
 
         var life = options.LifeEnabled;
-        if (ImGui.Checkbox("Ativado##life", ref life))
+        if (ImGui.Checkbox(T("Ativado##life"), ref life))
             _settings.AutoPotion = options with { LifeEnabled = life };
 
         var mode = (int)options.LifeMode;
-        if (ImGui.Combo("Observa##life", ref mode, "Vida Escudo Qualquer um "))
+        if (ImGui.Combo(T("Observa##life"), ref mode, "Vida Escudo Qualquer um "))
             _settings.AutoPotion = options with { LifeMode = (Settings.AutoPotion.LifeFlaskMode)mode };
 
         var lifeThreshold = options.LifeThresholdPercent;
-        if (ImGui.SliderFloat("Limite de vida %", ref lifeThreshold, 5f, 95f))
+        if (ImGui.SliderFloat(T("Limite de vida %"), ref lifeThreshold, 5f, 95f))
             _settings.AutoPotion = options with { LifeThresholdPercent = lifeThreshold };
 
         var esThreshold = options.EnergyShieldThresholdPercent;
-        if (ImGui.SliderFloat("Limite de escudo %", ref esThreshold, 5f, 95f))
+        if (ImGui.SliderFloat(T("Limite de escudo %"), ref esThreshold, 5f, 95f))
             _settings.AutoPotion = options with { EnergyShieldThresholdPercent = esThreshold };
 
         var lifeCooldown = options.LifeCooldownMs;
-        if (ImGui.SliderInt("Recarga de vida (ms)", ref lifeCooldown, 250, 10000))
+        if (ImGui.SliderInt(T("Recarga de vida (ms)"), ref lifeCooldown, 250, 10000))
             _settings.AutoPotion = options with { LifeCooldownMs = lifeCooldown };
 
         ImGui.Separator();
-        ImGui.TextDisabled("Mana");
+        ImGui.TextDisabled(T("Mana"));
 
         var mana = options.ManaEnabled;
-        if (ImGui.Checkbox("Ativado##mana", ref mana))
+        if (ImGui.Checkbox(T("Ativado##mana"), ref mana))
             _settings.AutoPotion = options with { ManaEnabled = mana };
 
         var manaThreshold = options.ManaThresholdPercent;
-        if (ImGui.SliderFloat("Limite de mana %", ref manaThreshold, 5f, 95f))
+        if (ImGui.SliderFloat(T("Limite de mana %"), ref manaThreshold, 5f, 95f))
             _settings.AutoPotion = options with { ManaThresholdPercent = manaThreshold };
 
         var manaCooldown = options.ManaCooldownMs;
-        if (ImGui.SliderInt("Recarga de mana (ms)", ref manaCooldown, 250, 10000))
+        if (ImGui.SliderInt(T("Recarga de mana (ms)"), ref manaCooldown, 250, 10000))
             _settings.AutoPotion = options with { ManaCooldownMs = manaCooldown };
 
         if (potion is null) return;
 
         ImGui.Separator();
-        ImGui.TextDisabled("estado");
+        ImGui.TextDisabled(T("estado"));
 
         static void Row(string label, string value)
         {
@@ -1067,19 +1226,19 @@ internal sealed class SettingsWindow
     {
         var map = _settings.NativeMap;
 
-        ImGui.TextDisabled("Desenha sobre o mapa do proprio jogo. Abra com Tab.");
+        ImGui.TextDisabled(T("Desenha sobre o mapa do proprio jogo. Abra com Tab."));
         ImGui.Separator();
 
         var enabled = map.Enabled;
-        if (ImGui.Checkbox("Ativado##nativemap", ref enabled))
+        if (ImGui.Checkbox(T("Ativado##nativemap"), ref enabled))
             _settings.NativeMap = map with { Enabled = enabled };
 
         var terrain = map.ShowTerrain;
-        if (ImGui.Checkbox("Terrain", ref terrain))
+        if (ImGui.Checkbox(T("Terrain"), ref terrain))
             _settings.NativeMap = map with { ShowTerrain = terrain };
 
         var player = map.ShowPlayer;
-        if (ImGui.Checkbox("Player##nativemap", ref player))
+        if (ImGui.Checkbox(T("Player##nativemap"), ref player))
             _settings.NativeMap = map with { ShowPlayer = player };
 
         if (player)
@@ -1094,14 +1253,14 @@ internal sealed class SettingsWindow
         }
 
         var entities = map.ShowEntities;
-        if (ImGui.Checkbox("Entidades##nativemap", ref entities))
+        if (ImGui.Checkbox(T("Entidades##nativemap"), ref entities))
             _settings.NativeMap = map with { ShowEntities = entities };
 
         ImGui.Separator();
-        ImGui.TextDisabled("Categorias");
+        ImGui.TextDisabled(T("Categorias"));
 
         var monsters = map.ShowMonsters;
-        if (ImGui.Checkbox("Inimigos", ref monsters))
+        if (ImGui.Checkbox(T("Inimigos"), ref monsters))
             _settings.NativeMap = map with { ShowMonsters = monsters };
 
         if (monsters)
@@ -1112,7 +1271,7 @@ internal sealed class SettingsWindow
             // read "Magicos (azul)", which was true only while the colour was
             // not yours to change.
             var normal = map.ShowNormalMonsters;
-            if (ImGui.Checkbox("Normais", ref normal))
+            if (ImGui.Checkbox(T("Normais"), ref normal))
                 _settings.NativeMap = map with { ShowNormalMonsters = normal };
 
             var normalColour = Colour("Cor##monnormal", map.MonsterNormalColour);
@@ -1120,7 +1279,7 @@ internal sealed class SettingsWindow
                 _settings.NativeMap = map with { MonsterNormalColour = normalColour };
 
             var magic = map.ShowMagicMonsters;
-            if (ImGui.Checkbox("Magicos", ref magic))
+            if (ImGui.Checkbox(T("Magicos"), ref magic))
                 _settings.NativeMap = map with { ShowMagicMonsters = magic };
 
             var magicColour = Colour("Cor##monmagic", map.MonsterMagicColour);
@@ -1128,7 +1287,7 @@ internal sealed class SettingsWindow
                 _settings.NativeMap = map with { MonsterMagicColour = magicColour };
 
             var rare = map.ShowRareMonsters;
-            if (ImGui.Checkbox("Raros", ref rare))
+            if (ImGui.Checkbox(T("Raros"), ref rare))
                 _settings.NativeMap = map with { ShowRareMonsters = rare };
 
             var rareColour = Colour("Cor##monrare", map.MonsterRareColour);
@@ -1136,7 +1295,7 @@ internal sealed class SettingsWindow
                 _settings.NativeMap = map with { MonsterRareColour = rareColour };
 
             var unique = map.ShowUniqueMonsters;
-            if (ImGui.Checkbox("Unicos / chefes", ref unique))
+            if (ImGui.Checkbox(T("Unicos / chefes"), ref unique))
                 _settings.NativeMap = map with { ShowUniqueMonsters = unique };
 
             var uniqueColour = Colour("Cor##monunique", map.MonsterUniqueColour);
@@ -1147,11 +1306,11 @@ internal sealed class SettingsWindow
         }
 
         var dead = map.ShowDeadMonsters;
-        if (ImGui.Checkbox("Inimigos mortos", ref dead))
+        if (ImGui.Checkbox(T("Inimigos mortos"), ref dead))
             _settings.NativeMap = map with { ShowDeadMonsters = dead };
 
         var allies = map.ShowAllies;
-        if (ImGui.Checkbox("Minions", ref allies))
+        if (ImGui.Checkbox(T("Minions"), ref allies))
             _settings.NativeMap = map with { ShowAllies = allies };
 
         if (allies)
@@ -1166,11 +1325,11 @@ internal sealed class SettingsWindow
         }
 
         var npcs = map.ShowNpcs;
-        if (ImGui.Checkbox("NPCs", ref npcs))
+        if (ImGui.Checkbox(T("NPCs"), ref npcs))
             _settings.NativeMap = map with { ShowNpcs = npcs };
 
         var unvisited = map.ShowUnvisited;
-        if (ImGui.Checkbox("Marcar o chao onde voce ainda nao foi", ref unvisited))
+        if (ImGui.Checkbox(T("Marcar o chao onde voce ainda nao foi"), ref unvisited))
             _settings.NativeMap = map with { ShowUnvisited = unvisited };
 
         var visitedColour = Colour("Chao ja percorrido", map.VisitedColour);
@@ -1182,81 +1341,81 @@ internal sealed class SettingsWindow
             _settings.NativeMap = map with { UnvisitedColour = unvisitedColour };
 
         var strength = map.UnvisitedStrength;
-        if (ImGui.SliderFloat("Intensidade do vermelho", ref strength, 0f, 1f))
+        if (ImGui.SliderFloat(T("Intensidade do vermelho"), ref strength, 0f, 1f))
             _settings.NativeMap = map with { UnvisitedStrength = strength };
 
         var radius = map.VisitRadius;
-        if (ImGui.SliderInt("Alcance do que conta como visto", ref radius, 10, 120))
+        if (ImGui.SliderInt(T("Alcance do que conta como visto"), ref radius, 10, 120))
             _settings.NativeMap = map with { VisitRadius = radius };
 
         ImGui.Separator();
 
         var marked = map.OnlyMarkedChests;
-        if (ImGui.Checkbox("So baus que o jogo marca (esconde vasos e caixotes)", ref marked))
+        if (ImGui.Checkbox(T("So baus que o jogo marca (esconde vasos e caixotes)"), ref marked))
             _settings.NativeMap = map with { OnlyMarkedChests = marked };
 
         var chests = map.ShowChests;
-        if (ImGui.Checkbox("Baus", ref chests))
+        if (ImGui.Checkbox(T("Baus"), ref chests))
             _settings.NativeMap = map with { ShowChests = chests };
 
         var transitions = map.ShowTransitions;
-        if (ImGui.Checkbox("Transicoes", ref transitions))
+        if (ImGui.Checkbox(T("Transicoes"), ref transitions))
             _settings.NativeMap = map with { ShowTransitions = transitions };
 
         var pois = map.ShowPois;
-        if (ImGui.Checkbox("Pontos de interesse", ref pois))
+        if (ImGui.Checkbox(T("Pontos de interesse"), ref pois))
             _settings.NativeMap = map with { ShowPois = pois };
 
-        if (pois) ImGui.TextDisabled("Waypoints, checkpoints, portais — marcados pelo proprio jogo.");
+        if (pois) ImGui.TextDisabled(T("Waypoints, checkpoints, portais — marcados pelo proprio jogo."));
 
         if (transitions)
         {
             ImGui.Indent();
 
             var names = map.ShowTransitionNames;
-            if (ImGui.Checkbox("Mostrar o destino", ref names))
+            if (ImGui.Checkbox(T("Mostrar o destino"), ref names))
                 _settings.NativeMap = map with { ShowTransitionNames = names };
 
             ImGui.Unindent();
         }
 
         var others = map.ShowOtherPlayers;
-        if (ImGui.Checkbox("Outros jogadores", ref others))
+        if (ImGui.Checkbox(T("Outros jogadores"), ref others))
             _settings.NativeMap = map with { ShowOtherPlayers = others };
 
         var mechanics = map.ShowMechanics;
-        if (ImGui.Checkbox("Mecanicas de liga", ref mechanics))
+        if (ImGui.Checkbox(T("Mecanicas de liga"), ref mechanics))
             _settings.NativeMap = map with { ShowMechanics = mechanics };
 
         var threats = map.ShowThreats;
-        if (ImGui.Checkbox("Marcar mods perigosos", ref threats))
+        if (ImGui.Checkbox(T("Marcar mods perigosos"), ref threats))
             _settings.NativeMap = map with { ShowThreats = threats };
 
         var landmarks = map.ShowLandmarks;
-        if (ImGui.Checkbox("Locais nomeados", ref landmarks))
+        if (ImGui.Checkbox(T("Locais nomeados"), ref landmarks))
             _settings.NativeMap = map with { ShowLandmarks = landmarks };
 
         var raw = map.ShowRawEntities;
-        if (ImGui.Checkbox("Entidades cruas (debug)", ref raw))
+        if (ImGui.Checkbox(T("Entidades cruas (debug)"), ref raw))
             _settings.NativeMap = map with { ShowRawEntities = raw };
 
-        if (raw) ImGui.TextDisabled("Centenas de pontos. Ferramenta de debug, nao apresentacao.");
+        if (raw) ImGui.TextDisabled(T("Centenas de pontos. Ferramenta de debug, nao apresentacao."));
 
         ImGui.Separator();
-        ImGui.TextDisabled("Movimento");
+        ImGui.TextDisabled(T("Movimento"));
 
         var smooth = map.SmoothMovement;
-        if (ImGui.Checkbox("Suavizar movimento dos inimigos", ref smooth))
+        if (ImGui.Checkbox(T("Suavizar movimento dos inimigos"), ref smooth))
             _settings.NativeMap = map with { SmoothMovement = smooth };
 
-        ImGui.TextDisabled("Apenas os inimigos. O mapa e o player nunca sao suavizados.");
+        ImGui.TextDisabled(T("Apenas os inimigos. O mapa e o player nunca sao suavizados."));
 
         var opacity = map.TerrainOpacity;
-        if (ImGui.SliderFloat("Opacidade do terrain", ref opacity, 0.1f, 1f))
+        if (ImGui.SliderFloat(T("Opacidade do terrain"), ref opacity, 0.1f, 1f))
             _settings.NativeMap = map with { TerrainOpacity = opacity };
 
         ImGui.Separator();
-        ImGui.TextDisabled("estado");
+        ImGui.TextDisabled(T("estado"));
         ImGui.SameLine(190);
         ImGui.TextUnformatted(_map.Status);
     }
@@ -1266,7 +1425,7 @@ internal sealed class SettingsWindow
         var player = _settings.Player;
 
         var enabled = player.Enabled;
-        if (ImGui.Checkbox("Ativado##player", ref enabled))
+        if (ImGui.Checkbox(T("Ativado##player"), ref enabled))
             _settings.Player = player with { Enabled = enabled };
 
         var markerColour = Colour("Cor do seu marcador no mundo##playermarker", player.MarkerColour);
@@ -1274,23 +1433,23 @@ internal sealed class SettingsWindow
             _settings.Player = player with { MarkerColour = markerColour };
 
         var marker = player.ShowMarker;
-        if (ImGui.Checkbox("Marcador", ref marker))
+        if (ImGui.Checkbox(T("Marcador"), ref marker))
             _settings.Player = player with { ShowMarker = marker };
 
         var name = player.ShowName;
-        if (ImGui.Checkbox("Nome", ref name))
+        if (ImGui.Checkbox(T("Nome"), ref name))
             _settings.Player = player with { ShowName = name };
 
         var level = player.ShowLevel;
-        if (ImGui.Checkbox("Nivel", ref level))
+        if (ImGui.Checkbox(T("Nivel"), ref level))
             _settings.Player = player with { ShowLevel = level };
 
         var vitals = player.ShowVitals;
-        if (ImGui.Checkbox("Vida / mana / ES", ref vitals))
+        if (ImGui.Checkbox(T("Vida / mana / ES"), ref vitals))
             _settings.Player = player with { ShowVitals = vitals };
 
         var anchor = (int)player.Anchor;
-        if (ImGui.Combo("Ancoragem", ref anchor, "No personagem\0HUD fixo\0"))
+        if (ImGui.Combo(T("Ancoragem"), ref anchor, "No personagem\0HUD fixo\0"))
             _settings.Player = player with { Anchor = (PlayerAnchor)anchor };
     }
 
@@ -1302,7 +1461,7 @@ internal sealed class SettingsWindow
         // the key does not answers that in one press.
         ImGui.Text($"prints salvos nesta sessao: {stats.Screenshots}");
 
-        if (ImGui.Button("Salvar print agora"))
+        if (ImGui.Button(T("Salvar print agora")))
         {
             var saved = Overlay.ScreenCapture.Save(
                 Path.Combine(AppContext.BaseDirectory, "prints"));
@@ -1311,40 +1470,40 @@ internal sealed class SettingsWindow
         }
 
         ImGui.SameLine();
-        ImGui.TextDisabled("ou F9 a qualquer momento");
+        ImGui.TextDisabled(T("ou F9 a qualquer momento"));
 
         ImGui.Separator();
 
         var debug = _settings.DebugEntities;
 
         var enabled = debug.Enabled;
-        if (ImGui.Checkbox("Ativado##debug", ref enabled))
+        if (ImGui.Checkbox(T("Ativado##debug"), ref enabled))
             _settings.DebugEntities = debug with { Enabled = enabled };
 
         var marker = debug.ShowMarker;
-        if (ImGui.Checkbox("Marcador##debug", ref marker))
+        if (ImGui.Checkbox(T("Marcador##debug"), ref marker))
             _settings.DebugEntities = debug with { ShowMarker = marker };
 
         var distance = debug.ShowDistance;
-        if (ImGui.Checkbox("Distancia", ref distance))
+        if (ImGui.Checkbox(T("Distancia"), ref distance))
             _settings.DebugEntities = debug with { ShowDistance = distance };
 
         var metadata = debug.ShowMetadata;
-        if (ImGui.Checkbox("Metadata", ref metadata))
+        if (ImGui.Checkbox(T("Metadata"), ref metadata))
             _settings.DebugEntities = debug with { ShowMetadata = metadata };
 
         var id = debug.ShowEntityId;
-        if (ImGui.Checkbox("EntityId", ref id))
+        if (ImGui.Checkbox(T("EntityId"), ref id))
             _settings.DebugEntities = debug with { ShowEntityId = id };
 
         var components = debug.ShowComponentNames;
-        if (ImGui.Checkbox("Componentes", ref components))
+        if (ImGui.Checkbox(T("Componentes"), ref components))
             _settings.DebugEntities = debug with { ShowComponentNames = components };
 
         ImGui.Separator();
 
         var diagnostics = debug.ShowDiagnostics;
-        if (ImGui.Checkbox("Diagnostico", ref diagnostics))
+        if (ImGui.Checkbox(T("Diagnostico"), ref diagnostics))
             _settings.DebugEntities = debug with { ShowDiagnostics = diagnostics };
 
         if (!diagnostics) return;
@@ -1366,7 +1525,7 @@ internal sealed class SettingsWindow
 
         ImGui.Separator();
 
-        ImGui.TextDisabled("mapa nativo");
+        ImGui.TextDisabled(T("mapa nativo"));
         Row("terrain", stats.TerrainWidth > 0 ? $"{stats.TerrainWidth} x {stats.TerrainHeight}" : "-");
         Row("builds de textura", $"{_map.TerrainBuilds} ({_map.TerrainBuildMilliseconds:0} ms)");
         Row("escala", $"{stats.MapScale:0.000} px/celula");
@@ -1386,12 +1545,12 @@ internal sealed class SettingsWindow
         Row("icones em cache", Rendering.IconCache.Count.ToString());
 
         ImGui.Spacing();
-        ImGui.TextDisabled("fast lane");
+        ImGui.TextDisabled(T("fast lane"));
         Row("map frame", $"{stats.MapFrameHz:0} Hz   {stats.MapFrameMilliseconds:0.00} ms");
         Row("falhas", stats.MapFrameFailures.ToString());
 
         ImGui.Spacing();
-        ImGui.TextDisabled("preco no chao");
+        ImGui.TextDisabled(T("preco no chao"));
         Row("etiquetas do jogo", stats.LootTags.ToString());
         Row("casadas com item", stats.LootTagsMatched.ToString());
         Row("sem preco", stats.LootTagsUnpriced.ToString());
@@ -1400,10 +1559,10 @@ internal sealed class SettingsWindow
         Row("desenhadas", stats.LootPriced.ToString());
 
         if (stats.LootTags == 0)
-            ImGui.TextDisabled("  zero etiquetas = nao ha loot no chao agora.");
+            ImGui.TextDisabled(T("  zero etiquetas = nao ha loot no chao agora."));
 
         ImGui.Spacing();
-        ImGui.TextDisabled("world hud");
+        ImGui.TextDisabled(T("world hud"));
         Row("entidades recebidas", stats.EntitiesReceived.ToString());
         Row("desenhadas", stats.EntitiesRendered.ToString());
         Row("fora da tela", stats.OffScreen.ToString());
@@ -1422,7 +1581,7 @@ internal sealed class SettingsWindow
         {
             ImGui.Spacing();
             ImGui.TextColored(new System.Numerics.Vector4(1f, 0.45f, 0.45f, 1f), mismatch);
-            ImGui.TextDisabled("Nada foi reescalado. A causa precisa ser entendida antes.");
+            ImGui.TextDisabled(T("Nada foi reescalado. A causa precisa ser entendida antes."));
         }
 
         static void Row(string label, string value)

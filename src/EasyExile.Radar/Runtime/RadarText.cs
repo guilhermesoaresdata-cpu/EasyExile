@@ -1,19 +1,25 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace EasyExile.Radar.Runtime;
+
+using static EasyExile.Radar.UI.Text;
 
 /// <summary>
 /// User-facing strings for the radar, kept out of the code that produces them.
 /// Same reasoning as the Core's equivalent: this is not a localization system,
-/// it is the shape one would need. Default is pt-BR.
+/// it is the shape one would need. Default is pt-BR, and the English form
+/// comes from the same table the panel uses.
 /// </summary>
 internal static class RadarText
 {
-    public const string ClientNotRunning = "PathOfExile nao esta rodando";
-    public const string BuildMismatch = "OFFSETS BUILD MISMATCH";
-    public const string Refusing = "RECUSANDO EXECUTAR";
-    public const string Waiting = "aguardando o primeiro snapshot";
-    public const string Stopped = "encerrado";
+    // Properties rather than constants: the language is a setting the player
+    // can change while the radar runs, and a const is baked into every caller
+    // at compile time, where no translation can reach it.
+    public static string ClientNotRunning => T("PathOfExile nao esta rodando");
+    public static string BuildMismatch => T("OFFSETS BUILD MISMATCH");
+    public static string Refusing => T("RECUSANDO EXECUTAR");
+    public static string Waiting => T("aguardando o primeiro snapshot");
+    public static string Stopped => T("encerrado");
 
     /// <summary>
     /// Tells the user why the radar will not start.

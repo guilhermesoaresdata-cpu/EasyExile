@@ -3,8 +3,12 @@ using EasyExile.Core.World;
 using EasyExile.Radar.Features.Navigation;
 using EasyExile.Radar.Rendering;
 using EasyExile.Radar.Settings;
+using EasyExile.Radar.Settings.General;
+using EasyExile.Radar.UI;
 
 namespace EasyExile.Radar.Features.Levelling;
+
+using static EasyExile.Radar.UI.Text;
 
 /// <summary>
 /// A levelling guide that routes instead of pointing.
@@ -35,6 +39,7 @@ public sealed class RouteGuideFeature : IRadarFeature
     private readonly LevelRoute _route;
     private readonly string _recordedPath;
     private readonly CampaignGuide _campaign;
+    private readonly CampaignGuide _english;
     private readonly CampaignJournal? _journal;
 
     private string? _area;
@@ -45,7 +50,8 @@ public sealed class RouteGuideFeature : IRadarFeature
 
     public RouteGuideFeature(
         RadarSettings settings, Navigator navigator, AreaGraph graph, LevelRoute route, string recordedPath,
-        CampaignGuide? campaign = null, CampaignJournal? journal = null)
+        CampaignGuide? campaign = null, CampaignJournal? journal = null,
+        CampaignGuide? english = null)
     {
         _settings = settings;
         _navigator = navigator;
@@ -53,10 +59,22 @@ public sealed class RouteGuideFeature : IRadarFeature
         _route = route;
         _recordedPath = recordedPath;
         _campaign = campaign ?? CampaignGuide.Empty;
+        _english = english ?? CampaignGuide.Empty;
         _journal = journal;
     }
 
-    public string Name => "Guia de leveling";
+    /// <summary>The guide in the language the panel is speaking.</summary>
+    /// <remarks>
+    /// Chosen per read rather than at startup, because the language is a
+    /// setting and the player can change it without restarting. The zone and
+    /// step indices carry across because the two files are the same guide -
+    /// same zones in the same order, same steps under each - which is a
+    /// property a test enforces rather than one we are hoping for.
+    /// </remarks>
+    private CampaignGuide Campaign =>
+        Text.Current == Language.English && _english.IsLoaded ? _english : _campaign;
+
+    public string Name => T("Guia de leveling");
 
     public bool Enabled => _settings.Levelling.Enabled;
 
@@ -64,7 +82,7 @@ public sealed class RouteGuideFeature : IRadarFeature
     public string Here => _area is { Length: > 0 } a ? _graph.Name(a) : "—";
 
     /// <summary>What to do next, and why we think so.</summary>
-    public string Objective { get; private set; } = "sem objetivo";
+    public string Objective { get; private set; } = T("sem objetivo");
 
     /// <summary>Whether a route is actually being drawn to that objective.</summary>
     public bool Routing { get; private set; }
@@ -77,12 +95,12 @@ public sealed class RouteGuideFeature : IRadarFeature
     public int Steps => _route.Steps.Count;
 
     /// <summary>Where the campaign guide thinks you are, if it recognises the zone.</summary>
-    public CampaignZone? Zone => _zone >= 0 && _zone < _campaign.Count ? _campaign.Zones[_zone] : null;
+    public CampaignZone? Zone => _zone >= 0 && _zone < Campaign.Count ? Campaign.Zones[_zone] : null;
 
     /// <summary>Which of the campaign's zones this is, one-based, and how many there are.</summary>
     public int ZoneNumber => _zone + 1;
 
-    public int ZoneCount => _campaign.Count;
+    public int ZoneCount => Campaign.Count;
 
     /// <summary>Zones written to the journal this session.</summary>
     public int Journalled => _journal?.Entries ?? 0;
@@ -113,7 +131,7 @@ public sealed class RouteGuideFeature : IRadarFeature
             // code is the same in every language and this client is not in
             // English. Searched forward from where the guide already was, so a
             // three-floor manor under one code does not snap back to floor one.
-            _zone = _campaign.IndexOf(area, _zone);
+            _zone = Campaign.IndexOf(area, _zone);
 
             // Written on the area change, once, because the interesting facts
             // are per-zone and re-writing them at capture rate would bury them.
@@ -123,7 +141,7 @@ public sealed class RouteGuideFeature : IRadarFeature
 
         if (!_settings.Levelling.AutoRoute)
         {
-            Objective = "rota automatica desligada";
+            Objective = T("rota automatica desligada");
             Routing = false;
             Panel(frame, canvas);
             return;
@@ -207,19 +225,19 @@ public sealed class RouteGuideFeature : IRadarFeature
                         continue;
 
                     if (Door(snapshot, destination) is { } door)
-                        return (NavTarget.IdFor(door), $"Ir para {step.Subject}", step);
+                        return (NavTarget.IdFor(door), T("Ir para ") + step.Subject, step);
 
                     // The door may be zones back the way we came, so ask the
                     // graph we have actually walked for the first hop.
                     if (_graph.FirstHopTowards(area, destination) is { Length: > 0 } hop &&
                         Door(snapshot, hop) is { } back)
-                        return (NavTarget.IdFor(back), $"Ir para {step.Subject} - via {_graph.Name(hop)}", step);
+                        return (NavTarget.IdFor(back), T("Ir para ") + step.Subject + T(" - via ") + _graph.Name(hop), step);
 
                     // No door in sight at all. The map already knows where the
                     // way out of this zone is — it is a named tile cluster the
                     // client marks as a way out — so head for that.
                     if (StepAim.Exit(snapshot) is { } out_)
-                        return (out_.Id, $"Ir para {step.Subject} - saida: {out_.Label}", step);
+                        return (out_.Id, T("Ir para ") + step.Subject + T(" - saida: ") + out_.Label, step);
 
                     continue;
                 }
@@ -229,19 +247,19 @@ public sealed class RouteGuideFeature : IRadarFeature
             }
 
             // Every step here is answered. The next zone is the objective.
-            if (_campaign.NextAfter(_zone) is { } next && next.Code is { Length: > 0 } code)
+            if (Campaign.NextAfter(_zone) is { } next && next.Code is { Length: > 0 } code)
             {
                 if (Door(snapshot, code) is { } onward)
-                    return (NavTarget.IdFor(onward), $"Ir para {next.Name}", null);
+                    return (NavTarget.IdFor(onward), T("Ir para ") + next.Name, null);
 
                 if (_graph.FirstHopTowards(area, code) is { Length: > 0 } hop &&
                     Door(snapshot, hop) is { } through)
-                    return (NavTarget.IdFor(through), $"Ir para {next.Name} - via {_graph.Name(hop)}", null);
+                    return (NavTarget.IdFor(through), T("Ir para ") + next.Name + T(" - via ") + _graph.Name(hop), null);
 
                 if (StepAim.Exit(snapshot) is { } away)
-                    return (away.Id, $"Ir para {next.Name} - saida: {away.Label}", null);
+                    return (away.Id, T("Ir para ") + next.Name + T(" - saida: ") + away.Label, null);
 
-                return (null, $"Proximo: {next.Name} - caminho ainda desconhecido", null);
+                return (null, T("Proximo: ") + next.Name + T(" - caminho ainda desconhecido"), null);
             }
         }
 
@@ -252,11 +270,11 @@ public sealed class RouteGuideFeature : IRadarFeature
             e.DestinationCode is { Length: > 0 } code && !_graph.HasVisited(code));
 
         if (unvisited is not null)
-            return (NavTarget.IdFor(unvisited), $"Explorar: {_graph.Name(unvisited.DestinationCode!)}", null);
+            return (NavTarget.IdFor(unvisited), T("Explorar: ") + _graph.Name(unvisited.DestinationCode!), null);
 
         var marked = snapshot.Entities.FirstOrDefault(e => e is { IsPoi: true, IconComplete: false });
 
-        if (marked is not null) return (NavTarget.IdFor(marked), "Aqui: " + Label(marked), null);
+        if (marked is not null) return (NavTarget.IdFor(marked), T("Aqui: ") + Label(marked), null);
 
         return (null, "nada marcado aqui", null);
     }
@@ -268,11 +286,11 @@ public sealed class RouteGuideFeature : IRadarFeature
 
     private static string Verb(CampaignStep step) => step.Action switch
     {
-        StepAction.Kill => "Matar: ",
-        StepAction.Take => "Pegar: ",
-        StepAction.Talk => "Falar: ",
+        StepAction.Kill => T("Matar: "),
+        StepAction.Take => T("Pegar: "),
+        StepAction.Talk => T("Falar: "),
         StepAction.Waypoint => "Waypoint: ",
-        _ => "Ir: ",
+        _ => T("Ir: "),
     };
 
     /// <summary>The same name the map prints, so the route and the marker agree.</summary>

@@ -1,4 +1,4 @@
-using EasyExile.Core.Snapshots;
+﻿using EasyExile.Core.Snapshots;
 using EasyExile.Core.Spatial;
 using EasyExile.Radar.Pricing;
 using EasyExile.Radar.Rendering;
@@ -6,6 +6,8 @@ using EasyExile.Radar.Settings;
 using EasyExile.Radar.Settings.Loot;
 
 namespace EasyExile.Radar.Features.Loot;
+
+using static EasyExile.Radar.UI.Text;
 
 /// <summary>
 /// What the item under the cursor is worth, in any item UI.
@@ -36,7 +38,7 @@ public sealed class HoverPriceFeature : IRadarFeature
         _cursor = cursor;
     }
 
-    public string Name => "Preco sob o cursor";
+    public string Name => T("Preco sob o cursor");
 
     public bool Enabled => _settings.Loot.Enabled && _settings.Loot.ShowHoverPrice;
 

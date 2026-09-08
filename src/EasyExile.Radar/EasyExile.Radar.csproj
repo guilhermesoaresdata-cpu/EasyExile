@@ -39,6 +39,7 @@
     <!-- The campaign's zone order. Data, not code: it is read at run time so it
          can be corrected without a rebuild. -->
     <None Update="campaign.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="campaign.en.txt" CopyToOutputDirectory="PreserveNewest" />
 
     <!-- How many tiers each mod family has. The tier itself is in the mod's own
          name; this is only the ceiling that turns it into "T1". -->

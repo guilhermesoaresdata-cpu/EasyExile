@@ -213,6 +213,37 @@ public sealed record LootSettings
     /// </remarks>
     public bool DebugSkillCaptions { get; init; }
 
+    // ---- what this character is building -------------------------------------
+
+    /// <summary>
+    /// Which kinds of mod are worth a mark on the item that has them.
+    /// </summary>
+    /// <remarks>
+    /// Stored as a number rather than as the flags' own names: the settings file
+    /// is one key per line and a flags value writes itself as "Minion, Fire",
+    /// whose comma the reader would have to learn about for no gain.
+    /// </remarks>
+    public int BuildTagMask { get; init; }
+
+    /// <summary>Where the build mark sits, so it need not fight the tier mark.</summary>
+    public ChipCorner BuildTagCorner { get; init; } = ChipCorner.BottomLeft;
+
+    public int BuildTagColour { get; init; } = unchecked((int)0xFF7DFF7D);
+
+    // ---- resistances still short of the cap ----------------------------------
+
+    /// <summary>Mark items that fill a resistance gap this character has.</summary>
+    /// <remarks>
+    /// It says nothing at all once everything is capped, and nothing when the
+    /// stats could not be read - a mark that is always on is not a mark, and a
+    /// number that might be wrong is worse than none.
+    /// </remarks>
+    public bool ShowResistanceHelp { get; init; } = true;
+
+    public ChipCorner ResistanceCorner { get; init; } = ChipCorner.BottomRight;
+
+    public int ResistanceColour { get; init; } = unchecked((int)0xFF5AC8F0);
+
 
     // ---- colours ---------------------------------------------------------------
     //

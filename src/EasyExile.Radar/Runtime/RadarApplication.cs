@@ -87,11 +87,15 @@ public sealed class RadarApplication : IDisposable
                 Features.Levelling.CampaignGuide.Load(
                     Path.Combine(AppContext.BaseDirectory, "campaign.txt")),
                 new Features.Levelling.CampaignJournal(
-                    Path.Combine(AppContext.BaseDirectory, "campaign-journal.txt"))),
+                    Path.Combine(AppContext.BaseDirectory, "campaign-journal.txt")),
+                Features.Levelling.CampaignGuide.Load(
+                    Path.Combine(AppContext.BaseDirectory, "campaign.en.txt"))),
             new Features.Loot.SlotHighlightFeature(settings, Stats, Prices, Cursor),
             new Features.Loot.HoverPriceFeature(settings, Prices, Cursor),
             new Features.Loot.ModTierFeature(settings, ModTiers, Cursor),
             new Features.Loot.SkillSupportFeature(settings, Supports, Cursor),
+            new Features.Loot.BuildTagFeature(settings, Cursor),
+            new Features.Loot.ResistanceFeature(settings, Cursor),
 
             worldDebug,
             new PlayerWorldFeature(settings),

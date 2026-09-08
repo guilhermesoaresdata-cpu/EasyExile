@@ -1,9 +1,11 @@
-using EasyExile.Core.Navigation;
+﻿using EasyExile.Core.Navigation;
 using EasyExile.Core.Spatial;
 using EasyExile.Radar.Rendering;
 using EasyExile.Radar.Settings;
 
 namespace EasyExile.Radar.Features.Navigation;
+
+using static EasyExile.Radar.UI.Text;
 
 /// <summary>
 /// The route on the ground, for when the game's map is closed.
@@ -37,7 +39,7 @@ public sealed class WorldRouteFeature : IRadarFeature
         _navigator = navigator;
     }
 
-    public string Name => "Rota no mundo";
+    public string Name => T("Rota no mundo");
 
     public bool Enabled => _settings.NativeMap.ShowRoutes && _settings.NativeMap.ShowWorldRoute;
 

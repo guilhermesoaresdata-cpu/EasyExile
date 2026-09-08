@@ -6,6 +6,8 @@ using EasyExile.Radar.Settings;
 
 namespace EasyExile.Radar.Features;
 
+using static EasyExile.Radar.UI.Text;
+
 /// <summary>
 /// Draws what a running analysis needs the player to do, and how long it will wait.
 /// </summary>
@@ -45,7 +47,7 @@ public sealed class ProbePromptFeature : IRadarFeature
         _prompt = prompt;
     }
 
-    public string Name => "Pedidos da analise";
+    public string Name => T("Pedidos da analise");
 
     public bool Enabled => _settings.General.ShowProbePrompts;
 

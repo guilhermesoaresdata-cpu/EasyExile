@@ -131,6 +131,17 @@ public sealed record GeneralSettings
     /// client rather than about where the question had been asked.
     /// </remarks>
     public bool ShowProbePrompts { get; init; } = true;
+
+    /// <summary>
+    /// The language the interface speaks.
+    /// </summary>
+    /// <remarks>
+    /// Portuguese by default because that is what it was written in and what
+    /// its author reads. English exists because the game is in English and so
+    /// is everything written about it, so the two sit side by side in one
+    /// person's head and the interface should be able to match either.
+    /// </remarks>
+    public Language Language { get; init; } = Language.PtBr;
 }
 
 /// <summary>The handful of virtual-key codes the settings need to name.</summary>
@@ -151,4 +162,11 @@ public static class VirtualKey
         F12 => "F12",
         _ => $"0x{code:X2}",
     };
+}
+
+/// <summary>What the interface speaks.</summary>
+public enum Language
+{
+    PtBr,
+    English,
 }

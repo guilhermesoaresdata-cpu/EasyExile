@@ -6,6 +6,8 @@ using EasyExile.Radar.Settings;
 
 namespace EasyExile.Radar.Features.Loot;
 
+using static EasyExile.Radar.UI.Text;
+
 /// <summary>
 /// A mark on every slot holding a top-tier roll.
 /// </summary>
@@ -37,7 +39,7 @@ public sealed class ModTierFeature : IRadarFeature
         _cursor = cursor;
     }
 
-    public string Name => "Tier dos mods";
+    public string Name => T("Tier dos mods");
 
     public bool Enabled => _settings.Loot.Enabled && _settings.Loot.ShowModTiers && _tiers.IsLoaded;
 

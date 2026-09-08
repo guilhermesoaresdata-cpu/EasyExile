@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using EasyExile.Core.Snapshots;
 using EasyExile.Core.Spatial;
 using EasyExile.Radar.Rendering;
@@ -6,6 +6,8 @@ using EasyExile.Radar.Settings;
 using EasyExile.Radar.Settings.Debug;
 
 namespace EasyExile.Radar.Features.World;
+
+using static EasyExile.Radar.UI.Text;
 
 /// <summary>
 /// World HUD: a dot on every entity, where the client renders it.
@@ -33,7 +35,7 @@ public sealed class DebugWorldFeature : IRadarFeature
         _stats = stats;
     }
 
-    public string Name => "Debug (HUD)";
+    public string Name => T("Debug (HUD)");
 
     private DebugEntitySettings Options => _settings.DebugEntities;
 

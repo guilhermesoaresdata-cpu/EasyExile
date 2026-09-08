@@ -31,6 +31,8 @@
     <!-- The shipped campaign, so a test can read the same file the overlay does. -->
     <None Include="..\..\src\EasyExile.Radar\campaign.txt" Link="campaign.txt"
           CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\src\EasyExile.Radar\campaign.en.txt" Link="campaign.en.txt"
+          CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

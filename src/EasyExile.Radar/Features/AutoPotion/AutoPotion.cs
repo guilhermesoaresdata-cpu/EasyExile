@@ -1,9 +1,11 @@
-using EasyExile.Core.Snapshots;
+﻿using EasyExile.Core.Snapshots;
 using EasyExile.Radar.Input;
 using EasyExile.Radar.Settings;
 using EasyExile.Radar.Settings.AutoPotion;
 
 namespace EasyExile.Radar.Features.AutoPotion;
+
+using static EasyExile.Radar.UI.Text;
 
 /// <summary>
 /// Presses the flask key when a pool drops below its threshold.
@@ -84,7 +86,7 @@ public sealed class AutoPotion
         // No frame means no area: loading, in a menu, or mid-transition.
         if (frame is null)
         {
-            Status = "pausado (fora de area)";
+            Status = T("pausado (fora de area)");
             return AutoPotionAction.None;
         }
 
@@ -95,7 +97,7 @@ public sealed class AutoPotion
         // broken, not idle.
         if (!vitals.IsPlausible)
         {
-            Status = "pausado (vitais ilegiveis)";
+            Status = T("pausado (vitais ilegiveis)");
             return AutoPotionAction.None;
         }
 
@@ -103,7 +105,7 @@ public sealed class AutoPotion
         // in whatever the player is actually typing into.
         if (!foreground)
         {
-            Status = "pausado (PoE2 sem foco)";
+            Status = T("pausado (PoE2 sem foco)");
             return AutoPotionAction.None;
         }
 

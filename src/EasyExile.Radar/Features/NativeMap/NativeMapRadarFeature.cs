@@ -6,6 +6,8 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace EasyExile.Radar.Features.NativeMap;
 
+using static EasyExile.Radar.UI.Text;
+
 /// <summary>
 /// Draws on the game's own map: terrain first, then the player, then entities.
 /// </summary>
@@ -63,7 +65,7 @@ public sealed class NativeMapRadarFeature : IRadarFeature
         _unexplored = new ExplorationOverlay(uploadTexture);
     }
 
-    public string Name => "Mapa";
+    public string Name => T("Mapa");
 
     public bool Enabled => _settings.NativeMap.Enabled;
 
@@ -79,7 +81,7 @@ public sealed class NativeMapRadarFeature : IRadarFeature
         _stats.ResetMapCounters();
 
         if (!Enabled) { Status = "desligado"; return; }
-        if (!frame.HasWorld) { Status = "sem mundo"; return; }
+        if (!frame.HasWorld) { Status = T("sem mundo"); return; }
 
         var snapshot = frame.Snapshot!;
 
@@ -87,14 +89,14 @@ public sealed class NativeMapRadarFeature : IRadarFeature
         // world snapshot only supplies WHICH entities exist, never where they are
         // on screen — that is recomputed here, every frame, which is what makes
         // the map track movement instead of stepping at capture rate.
-        if (frame.MapFrame is not { } live) { Status = "sem frame de mapa"; return; }
+        if (frame.MapFrame is not { } live) { Status = T("sem frame de mapa"); return; }
 
         // Different threads, different rates: a portal taken between the two
         // captures would draw the old area's entities on the new area's map.
         if (!frame.AreasAgree) { Status = "trocando de area"; return; }
 
-        if (!live.Map.IsUsable) { Status = "mapa nativo fechado"; return; }
-        if (snapshot.Terrain is not { IsEmpty: false } terrain) { Status = "sem terrain"; return; }
+        if (!live.Map.IsUsable) { Status = T("mapa nativo fechado"); return; }
+        if (snapshot.Terrain is not { IsEmpty: false } terrain) { Status = T("sem terrain"); return; }
 
         var options = _settings.NativeMap;
 
@@ -144,7 +146,7 @@ public sealed class NativeMapRadarFeature : IRadarFeature
         // the cost is the size of the MAP, not the size of the change.
         var paint = new TerrainPaint(options.VisitedColour, options.UnvisitedColour, null);
 
-        if (!_terrain.Ensure(frame.Epoch, terrain, paint)) { Status = "terrain sem textura"; return; }
+        if (!_terrain.Ensure(frame.Epoch, terrain, paint)) { Status = T("terrain sem textura"); return; }
 
         var p00 = NativeMapProjection.Project(new Vector2(0, 0), playerGrid, centre, scale);
         var p10 = NativeMapProjection.Project(new Vector2(terrain.Width, 0), playerGrid, centre, scale);

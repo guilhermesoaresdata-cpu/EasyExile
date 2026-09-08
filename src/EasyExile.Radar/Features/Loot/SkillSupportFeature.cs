@@ -8,6 +8,8 @@ using EasyExile.Radar.Settings.Loot;
 
 namespace EasyExile.Radar.Features.Loot;
 
+using static EasyExile.Radar.UI.Text;
+
 /// <summary>
 /// The supports that go in the skill under the cursor.
 /// </summary>
@@ -37,7 +39,7 @@ public sealed class SkillSupportFeature : IRadarFeature
         _cursor = cursor;
     }
 
-    public string Name => "Suportes da skill";
+    public string Name => T("Suportes da skill");
 
     public bool Enabled => _settings.Loot.ShowSkillSupports && _advice.IsLoaded;
 

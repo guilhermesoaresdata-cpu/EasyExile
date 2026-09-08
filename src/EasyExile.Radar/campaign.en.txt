@@ -1,0 +1,291 @@
+# EasyExile campaign guide.
+#
+# A linear list of typed ACTIONS, not a list of zones. That distinction is the
+# whole file: several things happen inside one zone, and the zone listed after
+# this one is often not reachable through a door from it — The Bone Pits is a
+# pocket off Mastodon Badlands and you leave it by waypoint. A guide that only
+# knows zones stands in the pocket waiting for a door.
+#
+# The shape is exile-leveling's (MIT, github.com/HeartofPhos/exile-leveling),
+# which is the model every good levelling tool converged on.
+#
+# Keyed by the client's INTERNAL area code, never by the displayed name: the
+# code is the same in every language, and this client is not in English.
+#
+#   act <n> <name>
+#   zone  <code> <name>        a zone on the main line
+#   zone? <code> <name>        an optional zone
+#   enter <code> <name>        walk to the door leading there
+#   waypoint                   take the waypoint or portal out
+#   kill  <name>               kill something in this zone
+#   take  <name>               pick something up in this zone
+#   talk  <name>               speak to someone in this zone
+#   note  <text>               anything else
+#   a trailing ? on a verb marks the step optional; " | " starts a hint
+#
+# Area codes from path-of-levelling-2 (MIT) cross-checked against codes this
+# tool learned from the running client. Step content derived from the community
+# walkthrough collected in github.com/nicolasbagatello/poe2-helper.
+
+act 1 Act One
+zone G1_2 Clearfell
+kill Beira of the Rotten Pack | Always north or north-east of the waypoint
+enter G1_4 Grelwood | Use Beira's checkpoint to come back if you find the exit first
+take? the Mysterious Encampment | Uncut support gem - spawns left or right of the start
+zone? G1_3 Mud Burrow
+kill? The Devourer | The whole zone is optional - speedrunners skip it
+zone G1_4 The Grelwood
+take the waypoint and talk to the quest NPC | The waypoint sits roughly at the centre of the zone
+enter G1_6 Grim Tangle | Go in, take the waypoint, come back to Grelwood
+enter G1_5 Red Vale | Go in, take the waypoint, come back to Grelwood
+enter G1_5 Red Vale | By waypoint or by checkpoint
+kill? Brambleghast | Uncut skill gem, level 2
+take? the Cauldron at the Witch's Hut encounter | A free medium life or mana flask
+zone G1_5 The Red Vale
+take the three obelisks and the three quest items | Circle the zone to find the three Rust Altars
+note Head back to Grelwood for the town sequence | See the town visits for the walkthrough
+zone G1_6 The Grim Tangle
+enter G1_7 Cemetery of the Eternals | Head opposite the entrance, where the area opens up
+kill? The Rotten Druid | Uncut support gem
+zone G1_7 Cemetery of the Eternals
+take the Mausoleum and kill the boss inside | At the second boss use the checkpoint to return, then waypoint to Cemetery
+take the Tomb and kill the boss inside | Part of the Sorrow Among Stones quest
+talk Lachlann, open the gate and kill Lachlann | Main boss, after both tombs
+enter G1_11 Hunting Grounds | On to the next zone
+zone G1_8 Mausoleum of the Praetor
+kill Draven | Needed for Sorrow Among Stones
+zone G1_9 Tomb of the Consort
+kill Asinia | Needed for Sorrow Among Stones
+note? in the Tomb, the Embattled Trove encounter | Uncut support gem
+zone G1_11 Hunting Grounds
+kill Crowbell | 2 passive points - follow the edges, the points sit in the corners
+enter G1_13_1 Ogham Farmlands | Go in, take the waypoint, come back to Hunting Grounds
+enter G1_12 Freythorn | Go in, take the waypoint, come back to Hunting Grounds
+enter G1_12 Freythorn | Portal to town and waypoint, unless it was the last one you found
+take? the Ritual site | Uncut skill gem, level 4
+take? the Dryad encounter | Uncut support gem
+zone G1_12 Freythorn
+note Do the 4 rituals and kill King in the Mists on the fourth | +30 spirit (normal difficulty only) - circle around to find them all
+enter G1_13_1 Ogham Farmlands | Portal to town and waypoint
+zone G1_13_1 Ogham Farmlands
+take Una's lute | Roughly the centre of the zone - 2 passive points
+enter G1_13_2 Ogham Village | The exit is always on the wall opposite the entrance
+take? the Crop Circle and kill the rare dog | Uncut skill gem, level 4
+zone G1_13_2 Ogham Village
+take the smithing tools | First character of the league only - unlocks the salvage bench
+kill the Executioner | Save Leitis quest - hug the right wall and head north
+enter G1_14 Manor Ramparts | On to the next zone
+zone G1_14 The Manor Ramparts
+enter G1_15 Ogham Manor | Make a U - always away from the waypoint once you are in
+take? the Gallows | The spot from the character creation screen - uncut support gem
+zone G1_15 Ogham Manor: First Floor
+kill Candlemass | If you find the stairs first, go down, take the checkpoint and come back
+take the stairs and go down twice | After Candlemass you can checkpoint straight to the stairs
+zone G1_15 Ogham Manor: Second Floor
+enter - third floor entrance | Opposite the entrance, cross the bridge, north-east if you started south-west
+zone G1_15 Ogham Manor: Third Floor
+take the lift to the boss, kill it and return to town | Ends Act 1 - head opposite the entrance
+
+act 2 Act Two
+zone G2_1 Vastiri Outskirts
+kill Rathbreaker | Zigzag along the inner wall until you find the narrow canyon
+waypoint | You can press ESC and respawn at the checkpoint
+zone G2_10_1 Mawdun Quarry
+enter G2_10_2 Mawdun Mine | Make an S or a Z, hug the wall and follow the bridges
+zone G2_10_2 Mawdun Mine
+kill Rudja | Diamond-shaped map - head north from the spawn, boss at the top
+talk Risu, then portal back to town | Main story progression
+zone G2_2 Traitor's Passage
+kill Balbala and take the Djinn Barya | Follow the yellow paper seals - unlocks the Trial of the Sekhema
+enter G2_3a the Halani Gates | Stairs going up mean you are on the right path
+take? the Bell Chest | Two uncut skill gems, level 6 (NOT CONFIRMED)
+zone G2_3a The Halani Gates
+kill Jamanra the Risen King | Stay near the canyon - cross it three times
+note Take the stairs down to the bottom-right corner and return to town | Linear, narrow map - head opposite the entrance
+zone G2_4_1 Keth
+kill Kabala, the Constrictor Queen | Roughly the middle - 2 passive points
+kill snakes until the Kabala Clan relic drops | It also drops in the Lost City
+enter G2_4_2 the Lost City | Always the bottom-right corner past the big bridge - take the checkpoint
+enter G2_4_2 the Lost City | On to the next zone
+zone G2_4_2 The Lost City
+take the exit and head for Buried Shrines | Cross the V-shaped bridge and keep away from the entrance
+take? the Golden Tomb | Uncut spirit gem
+take? the Ninth Treasure of Keth, the big golden beetle | Shows as 'The Galleria' on the map - random jewel
+zone G2_4_3 Buried Shrines
+take the Heart of Keth | Two rectangles joined by bridges - boss north or east
+take? the guarded sarcophagus | Uncut support gem
+take? the Elemental Offering event | Random resistance ring - Ruby helps against the next boss
+zone G2_5_1 Mastodon Badlands
+enter G2_5_2 the Bone Pits | Hug a wall until you find the exit
+take the unlit passage to open the Well of Souls | Needed to progress
+kill hyenas until the Sun Clan relic drops | Do not worry - it drops more easily in the Bone Pits
+take? the Shrine of Bones | Rare effigy near the checkpoint - uncut support gem
+zone G2_5_2 The Bone Pits
+kill the zone boss and take the horn | In a straight line from the entrance, past the bone arch
+kill hyenas until the Sun Clan relic drops
+waypoint | Hand in the quests
+zone G2_6 Valley of the Titans
+take the three ancient seals | Run the outer edge - opens the way into the Titan Grotto
+take the medallion and slot both relics | The waypoint is here - pick a buff, you can change it later
+enter G2_7 the Titan Grotto | Red hand icon while it is still sealed
+enter G2_7 the Titan Grotto | Carry on to the boss
+zone G2_7 The Titan Grotto
+kill the boss and return to town | Opposite side of the rectangle - bridge with a long staircase
+zone G2_8 Deshar
+talk the abandoned rhoa, BECAUSE IT IS THE RIGHT THING TO DO | An important moral decision
+take the last letter from a corpse on the ground | Near a large tower - 2 passive points on hand-in
+enter G2_9_1 the Path of Mourning | Go in, take the waypoint, come back to Deshar
+note Head for the Path of Mourning | On to the next zone
+zone G2_9_1 Path of Mourning
+enter G2_9_2 the Spires of Deshar | Head to the far side of the area - often a 3-3-3 pattern
+zone G2_9_2 The Spires of Deshar
+take the Sisters of Garukhan | +10% lightning resistance
+kill Tor Gul, the Defiler | Straight line, opposite the entrance
+waypoint | Hand in the quests
+zone G2_12_2 The Dreadnought Vanguard
+enter G2_12_2 the Dreadnought Vanguard, then find and kill Jamanra, the Abomination | Linear map - ends Act 2
+waypoint | End of Act 2
+
+act 3 Act Three
+zone G3_1 Sandswept Marsh
+enter - the Ziggurat Encampment (town) | Furthest wall from the entrance - run along it
+kill? Rootdredge | Uncut skill gem, level 9
+take? the Orok camp and loot the rare basket | 'Azak Campfire' - kill both rares - lesser jeweller's orb
+take? the Hanging Tree and loot the magic corpse | Random magic ring
+zone G3_3 Jungle Ruins
+enter G3_4 Venom Crypts (near waypoint) | Do NOT cross it - just take the checkpoint and the waypoint
+kill the Mighty Silverfist | 2 passive points - almost always in the top third
+enter G3_2_1 the Infested Barrens | Do NOT cross it - just take the checkpoint
+enter G3_2_1 the Infested Barrens | Follows the zone progression
+zone G3_4 The Venom Crypts
+take the corpse with the venom flask and return to town | It is in the Den of the Serpent Priestess
+zone G3_2_1 Infested Barrens
+enter G3_5 Chimeral Wetlands | Go in, take the waypoint, come back to Infested Barrens
+enter G3_7 Azak Bog | Go in, take the waypoint, come back to Infested Barrens
+enter G3_2_2 the Matlan Waterways | The Barrens' own waypoint is here
+note From the last one you find, take the waypoint and portal back to Jungle Ruins | Come back to finish Venom Crypts
+zone G3_7 The Azak Bog
+take? the Flameskin ritual and light them all | 25% fire res and rarity for the rest of the zone - do not hunt for it if you have not found it before the boss
+kill Ignagduk | +30 spirit - upper right quadrant
+waypoint | By waypoint
+zone G3_5 Chimeral Wetlands
+take the Trial of Chaos temple | Go in, take the waypoint, come back - the trial can be done any time
+kill the Chimera boss | Follow the left edge of the zone - unlocks the Trial of Chaos
+enter G3_6_1 Jiquani's Machinarium | Behind the Chimera boss
+zone G3_6_1 Jiquani's Machinarium
+take the first small soul core and open the door | Left or right of Alva - listen for the chime
+take two more small soul cores | Three in total, you only need two - the third door is just gold
+enter G3_6_2 Jiquani's Sanctum | Almost always straight ahead from the start of the second section
+kill Blackjaw | +10% fire resistance
+waypoint | Follows the progression
+zone G3_6_2 Jiquani's Sanctum
+note Activate the waypoint just past the entrance | Important for coming back later
+talk Alva
+take two medium soul cores | The soul cores spawn in random spots around the zone
+note Power both generators | Always behind Alva, one left and one right
+note Checkpoint back to Alva | You still have to wait for the second soul core, red lines on the floor
+kill Zicoatl, Warden of the Core, and take the large soul core | Needed to progress
+note Return to the Infested Barrens waypoint | Slot the large soul core there
+zone G3_2_2 The Matlan Waterways
+note Pull every lever to cross the zone, then the big one at the end | Linear area - the right levers drain the water
+note Portal back to town
+zone G3_8 The Drowned City
+enter G3_9 the Molten Vault | Almost always north-west - go in, take the waypoint, come back (first character only)
+enter G3_11 the Apex of Filth | Almost always north-east - go in, take the waypoint, come back (first character only)
+enter G3_9 Molten Vault | First character only - unlocks the reforging bench
+enter G3_11 Apex of Filth | Follows the progression
+zone G3_9 The Molten Vault
+kill the boss, then talk to Oswald in town | First character only - unlocks the reforging bench
+enter G3_11 Apex of Filth | On to the next zone
+zone G3_11 Apex of Filth
+kill the Queen of Filth and portal back to town | Giant spiral - go all the way round, boss on the top wall
+zone G3_12 Temple of Kopec
+note Take the stairs up twice and kill Ketzuli, High Priest of the Sun | Triangular zone - stairs in the corners - stay in the shade to avoid damage
+zone G3_14 Utzaal
+note? The sacrificial heart can drop anywhere in this zone | If it does not drop in Utzaal, move on - do not farm it
+note Find and kill Viper Napuatzi | At the right tip of the zone, facing north
+enter G3_16 Aggorat and enter Aggorat | Again at the top-right tip of the zone, facing north
+zone G3_16 Aggorat
+note Follow the Trial of Atziri voices across the big plaza to the next checkpoint | Keep the sound on in this zone
+enter G3_17 the Black Chambers | Past the big plaza, always at the top-left tip
+take the sacrificial table | Past the big plaza, always at the top-right tip
+note The sacrificial heart can drop anywhere in this zone | If you still have not got it, keep killing until it does
+waypoint | 2 passive points
+waypoint | Last zone of Act 3
+zone G3_17 The Black Chambers
+take Doryani, Royal Thaumaturge | Three sections joined by bridges - opposite the entrance
+
+act 4 Act Four
+zone - Kingsmarch (Town)
+talk Doryani, then Alva, and take the Boat Charter | Start of Act 4
+talk Tujen, Ange, Kanu and then Makoru to choose the island | Whakapanu Island first - Arastas after the three islands - Ngakanu last
+zone G4_3_1 Whakapanu Island
+take? the Crabshell cave and kill the rare | Along the beach - uncut support gem, level 4
+take the Shark Pit, kill the Great White One and take the fin | The other side of the island on the beach - get close to the water in the gaps between the rocks
+take the Petrified Pirate and take the map piece | 1 of 4 pieces - unlocks Plunder's Point
+enter G4_3_2 the Singing Caverns | Roughly the opposite tip from where the island starts (NOT CONFIRMED)
+zone G4_3_2 Singing Caverns
+take? the Beckoning Clam and finish the counter for the Humming Pearl | Hand it to Rog in town - rare amulet, +8 to all resistances
+take the Chamber of Echoes, kill Diamora, Song of Death, and talk to the Hooded One | Final boss of Whakapanu Island - unlocks the Shoreline Hideout
+note Return to the Ship and choose a new destination | Click the element in the top-left corner of the screen
+zone G4_7 Shrike Island
+take the corpse nest encounter and take the map piece | 2 of 4 pieces
+take the corrupted nests and kill the Scourge of the Skies | Linear path - boss at the end
+note Return to the Ship and choose a new destination | Click the element in the top-left corner of the screen
+zone G4_5_1 Abandoned Prison
+kill monsters until the Chapel Key drops | Needed for the permanent buff
+take the Chapel Door, kill the rare and its minions | 30% life or mana flask recovery - you can change it later
+enter G4_5_2 the Solitary Confinement | On to the next zone
+zone G4_5_2 Solitary Confinement
+kill? Bronnach, the Manhunter | A guaranteed unique and a few rares (NOT CONFIRMED)
+kill The Prisoner | Hug the wall where the waves break
+note Return to the Ship and choose a new destination | Click the element in the top-left corner
+zone G4_1_1 Isle of Kin
+take? the pen, free and kill Mimbok the Enslaved | Level 12 skill gem and level 4 support gem (NOT CONFIRMED)
+take the wrecked boat and take the map piece from the sailor | 3 of 4 pieces
+take the Primal arena and kill The Blind Beast | 2 passive points - head away from the mooring
+enter G4_1_2 the Volcanic Warrens | At the opposite tip, along the wall furthest from the start
+zone G4_1_2 Volcanic Warrens
+take the Tyrant's throne and kill Krutog, Lord of Kin | Opposite the entrance
+talk Matiki
+note Return to the Ship and choose a new destination | Click the element in the top-left corner
+zone G4_2_1 Kedge Bay
+take the dead man's chest and take the map piece | 4 of 4 pieces - unlocks Plunder's Point
+enter G4_2_2 Journey's End | Easy, linear path
+zone G4_2_2 Journey's End
+note Summon and talk to Tujen
+take? the trapped ship | The timer starts at the first chest - whatever you do not take disappears
+take the Captain's Chair, kill Captain Hartlin and take the Verisium
+note Checkpoint back to the start and talk to Freya Hartlin
+waypoint
+note Return to Journey's End and talk to Freya Hartlin again
+note Impale the totems and finish the Delirium by killing Omniphobia | 2 passive points - NEW IN 0.4
+note Return to the Ship and choose a new destination | Click the element in the top-left corner
+zone G4_8b Arastas
+note? the Evening and the Morning Bell | Extra currency - 3 regal, 3 exalted
+talk Follow Missionary Lorandis to the church, leave, break the force field and kill everything
+note Carry on to the Excavated Pit and kill Torvian, Hand of the Saviour | Extra currency
+enter G4_10 Excavation | On to the next zone
+zone G4_10 Excavation
+take? the Excavated cache | Uncut support gem, level 4
+take the Precursor Forge and defeat Benedictus, First Herald of Utopia | Hug the wall - two blocks joined by a small plaza
+note Watch the lore events, talk to the Hidden One and portal out | Unlocks the Precursor Forge
+zone G4_4_1 Eye of Hinekora
+note? On the way out of the caves there is a rare chest behind a waterfall | Uncut skill gem, level 12 (NOT CONFIRMED)
+note Cross the cave and complete each 'test of mettle' | Very linear - impossible to miss anything
+take the Silent Hall and press F in the room behind it | Talk to Navali for the lore - +5% maximum mana
+enter - the Hall of the Dead | On to the next zone
+zone G4_4_2 Halls of the Dead
+take the three trials (Tawhoa, Tasalio, Ngamahu), take the tattoos and hand them in at the arena totem | 5 dex or 5% lightning res, 5 int or 5% cold res, 5 strength or 5% fire res - no changing your mind (NOT CONFIRMED)
+take Yama's Test, defeat Yama the White and take the silver coin | Unlocks the Trial of the Ancestors
+note Leave for the Trial of the Ancestors behind the Yama encounter | On to the next zone
+zone G4_4_3 Trial of the Ancestors
+talk Navali and take the Tattoo of Hinekora | 2 passive points
+note? A third way to get ascendancy points | Not implemented yet
+note Return to the Ship and choose a new destination | Click the element in the top-left corner (currently bugged?)
+zone G4_11_1b Ngakanu
+take? the Medicine Circle, kill the monsters and talk to Kaimana | Lore only
+take and enter the Heart of the Tribe | Find the edge after leaving the big building and follow it to the Heart of Tribe
+zone G4_11_2 Heart of the Tribe
+take the Sacred Interior and defeat Tavakai | Head north - opposite the checkpoint
+note Return to town and talk to the Hooded One | End of Act 4 - the interludes follow

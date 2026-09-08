@@ -1,4 +1,4 @@
-using EasyExile.Core.Snapshots;
+﻿using EasyExile.Core.Snapshots;
 using EasyExile.Core.Spatial;
 using EasyExile.Radar.Pricing;
 using EasyExile.Radar.Rendering;
@@ -6,6 +6,8 @@ using EasyExile.Radar.Settings;
 using EasyExile.Radar.Settings.Loot;
 
 namespace EasyExile.Radar.Features.Loot;
+
+using static EasyExile.Radar.UI.Text;
 
 /// <summary>
 /// What a drop is worth, on the game's own loot tag.
@@ -47,7 +49,7 @@ public sealed class LootValuesFeature : IRadarFeature
         _prices = prices;
     }
 
-    public string Name => "Valores de loot";
+    public string Name => T("Valores de loot");
 
     public bool Enabled => _settings.Loot.Enabled;
 

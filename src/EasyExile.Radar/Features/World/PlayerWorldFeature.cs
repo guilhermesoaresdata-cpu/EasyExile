@@ -5,6 +5,8 @@ using EasyExile.Radar.Settings.Player;
 
 namespace EasyExile.Radar.Features.World;
 
+using static EasyExile.Radar.UI.Text;
+
 /// <summary>
 /// World HUD: draws the local character where the client renders it, with its
 /// name, level and vitals.
@@ -25,7 +27,7 @@ public sealed class PlayerWorldFeature : IRadarFeature
 
     public PlayerWorldFeature(RadarSettings settings) => _settings = settings;
 
-    public string Name => "Player (HUD)";
+    public string Name => T("Player (HUD)");
 
     private PlayerSettings Options => _settings.Player;
 

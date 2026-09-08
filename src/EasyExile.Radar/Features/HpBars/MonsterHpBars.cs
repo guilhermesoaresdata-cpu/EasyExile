@@ -1,10 +1,12 @@
-using EasyExile.Core.Snapshots;
+﻿using EasyExile.Core.Snapshots;
 using EasyExile.Core.Spatial;
 using EasyExile.Radar.Features.NativeMap;
 using EasyExile.Radar.Rendering;
 using EasyExile.Radar.Settings;
 
 namespace EasyExile.Radar.Features.HpBars;
+
+using static EasyExile.Radar.UI.Text;
 
 /// <summary>
 /// Health bars over monsters, in the world.
@@ -48,7 +50,7 @@ public sealed class MonsterHpBars : IRadarFeature
         _stats = stats;
     }
 
-    public string Name => "Barras de vida";
+    public string Name => T("Barras de vida");
 
     public bool Enabled => _settings.HpBars.Enabled;
 

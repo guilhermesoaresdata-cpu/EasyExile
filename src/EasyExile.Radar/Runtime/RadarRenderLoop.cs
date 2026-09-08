@@ -8,6 +8,8 @@ using EasyExile.Radar.UI;
 
 namespace EasyExile.Radar.Runtime;
 
+using static EasyExile.Radar.UI.Text;
+
 /// <summary>
 /// Drives one rendered frame.
 /// </summary>
@@ -264,7 +266,7 @@ public sealed class RadarRenderLoop
             if (path is not null)
             {
                 _shotAt = now;
-                _shotName = $"print salvo: {Path.GetFileName(path)}";
+                _shotName = T("print salvo: ") + Path.GetFileName(path);
                 _shotOk = true;
                 _stats.Screenshots++;
             }
@@ -314,8 +316,8 @@ public sealed class RadarRenderLoop
             LastDump = path is null ? null : Path.GetFileName(path);
 
             _shotName = path is not null
-                ? $"salvo: {Path.GetFileName(path)}"
-                : "nao salvou (o personagem esta numa area?)";
+                ? T("salvo: ") + Path.GetFileName(path)
+                : T("nao salvou (o personagem esta numa area?)");
         }
 
         _uiTreeWasDown = down;
@@ -526,8 +528,8 @@ public sealed class RadarRenderLoop
 
     private static string Describe(CaptureStatus status) => status switch
     {
-        CaptureStatus.NoArea => "carregando / fora de area",
-        CaptureStatus.InvalidatedByTransition => "trocando de area",
-        _ => "aguardando snapshot",
+        CaptureStatus.NoArea => T("carregando / fora de area"),
+        CaptureStatus.InvalidatedByTransition => T("trocando de area"),
+        _ => T("aguardando snapshot"),
     };
 }

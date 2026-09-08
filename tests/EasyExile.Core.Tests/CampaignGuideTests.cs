@@ -1,4 +1,4 @@
-using EasyExile.Radar.Features.Levelling;
+﻿using EasyExile.Radar.Features.Levelling;
 using Xunit;
 
 namespace EasyExile.Core.Tests;
@@ -206,6 +206,68 @@ public class CampaignGuideTests
         Assert.Equal("The Bone Pits", bonePits.Name);
         Assert.Contains(bonePits.Steps, s => s.Action == StepAction.Waypoint);
         Assert.Contains(bonePits.Steps, s => s.Action == StepAction.Kill);
+    }
+
+    [Fact]
+    public void The_english_campaign_is_the_same_guide_in_another_language()
+    {
+        // The overlay picks the file by language but keeps the zone and step
+        // indices it already had, because switching language mid-act must not
+        // move the player's place in the guide. That only holds while the two
+        // files describe the same journey, so this is where it is made to hold:
+        // same zones in the same order, same codes, same number of steps under
+        // each, and the same action on each step.
+        var ptBr = CampaignGuide.Load(Path.Combine(AppContext.BaseDirectory, "campaign.txt"));
+        var english = CampaignGuide.Load(Path.Combine(AppContext.BaseDirectory, "campaign.en.txt"));
+
+        Assert.True(english.IsLoaded, "campaign.en.txt nao foi copiado para a saida");
+        Assert.Equal(ptBr.Count, english.Count);
+
+        for (var i = 0; i < ptBr.Count; i++)
+        {
+            var (a, b) = (ptBr.Zones[i], english.Zones[i]);
+
+            Assert.Equal(a.Code, b.Code);
+            Assert.Equal(a.Steps.Count, b.Steps.Count);
+
+            for (var s = 0; s < a.Steps.Count; s++)
+            {
+                Assert.Equal(a.Steps[s].Action, b.Steps[s].Action);
+                Assert.Equal(a.Steps[s].Optional, b.Steps[s].Optional);
+                Assert.Equal(a.Steps[s].Target, b.Steps[s].Target);
+            }
+        }
+    }
+
+    [Fact]
+    public void The_english_campaign_actually_says_something_in_english()
+    {
+        // Copying the Portuguese across would satisfy every structural check
+        // above and leave the player reading Portuguese with English selected.
+        var ptBr = CampaignGuide.Load(Path.Combine(AppContext.BaseDirectory, "campaign.txt"));
+        var english = CampaignGuide.Load(Path.Combine(AppContext.BaseDirectory, "campaign.en.txt"));
+
+        var identical = 0;
+        var total = 0;
+
+        foreach (var (a, b) in ptBr.Zones.Zip(english.Zones))
+            foreach (var (x, y) in a.Steps.Zip(b.Steps))
+            {
+                var left = x.Subject + " | " + x.Hint;
+                var right = y.Subject + " | " + y.Hint;
+
+                if (left.Trim() is not { Length: > 3 }) continue;
+
+                total++;
+
+                if (string.Equals(left, right, StringComparison.Ordinal)) identical++;
+            }
+
+        // Some steps are legitimately identical - proper names, "waypoint" -
+        // but most of two hundred being so would mean nobody translated them.
+        Assert.True(
+            identical * 4 < total,
+            $"{identical} de {total} passos iguais nos dois idiomas");
     }
 
     [Fact]
