@@ -487,7 +487,8 @@ internal static class SnapshotCapture
             Current(vitals, "Mana"), Max(vitals, "Mana"),
             Current(vitals, "EnergyShield"), Max(vitals, "EnergyShield"),
             world,
-            Projection.ToGrid(world, GameLayout.Spatial.WorldToGrid));
+            Projection.ToGrid(world, GameLayout.Spatial.WorldToGrid),
+            entity.Resistances());
 
         static int Current(Vital[] vitals, string name) =>
             vitals.FirstOrDefault(v => v.Name == name)?.Current ?? 0;

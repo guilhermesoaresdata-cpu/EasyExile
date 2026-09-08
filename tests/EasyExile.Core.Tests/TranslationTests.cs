@@ -68,6 +68,7 @@ public class TranslationTests
                      "Minion (Mi)", "Projectile (Pj)", "Spell (Sp)", "Attack (At)",
                      "Fire (Fi)", "Cold (Co)", "Lightning (Li)", "Chaos (Ch)",
                      "Life (HP)", "Energy Shield (ES)", "Spirit (Sr)", "Crit (Cr)",
+                     "Fogo (F)", "Frio (C)", "Raio (L)", "Caos (X)",
                  })
             spoken.Add(elsewhere);
 

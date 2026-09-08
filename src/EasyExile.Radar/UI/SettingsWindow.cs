@@ -13,6 +13,8 @@ using static EasyExile.Radar.UI.Text;
 
 namespace EasyExile.Radar.UI;
 
+using EasyExile.Radar.Settings.Loot;
+
 /// <summary>
 /// The in-game control panel, shown only in interactive mode.
 /// </summary>
@@ -62,6 +64,12 @@ internal sealed class SettingsWindow
 
     /// <summary>The price book, so the panel can report what it knows.</summary>
     private Pricing.PriceBook? _prices;
+
+    /// <summary>The character sheet's four numbers, as of the last snapshot.</summary>
+    private EasyExile.Core.Snapshots.ResistanceSnapshot? _resists;
+
+    /// <summary>ImGui separates a combo's options with this, not with a comma.</summary>
+    private const char NUL = '\0';
 
     /// <summary>Hands the panel the price book. Set once, at composition.</summary>
     public void UsePrices(Pricing.PriceBook prices) => _prices = prices;
@@ -361,6 +369,12 @@ internal sealed class SettingsWindow
     /// <summary>Refreshes the destination list when the area or the entity set changes.</summary>
     public void Observe(EasyExile.Core.Snapshots.WorldSnapshot snapshot)
     {
+        // Before the early return below: the four resistances move with gear
+        // and levels rather than with the entity set, so gating them on a
+        // changed entity count would freeze them at whatever they were when the
+        // last monster spawned.
+        _resists = snapshot.Player.Resists;
+
         if (snapshot.Epoch == _targetsEpoch && snapshot.Entities.Length == _targetsCount) return;
 
         _targetsEpoch = snapshot.Epoch;
@@ -782,6 +796,57 @@ internal sealed class SettingsWindow
     /// any of it: they read the item and the character, work in every panel the
     /// game has, and keep working long after the campaign is over.
     /// </remarks>
+    private static readonly (Settings.Loot.ResistanceWatch Flag, string Label)[] ResistanceLabels =
+    [
+        (Settings.Loot.ResistanceWatch.Fire, "Fogo (F)"),
+        (Settings.Loot.ResistanceWatch.Cold, "Frio (C)"),
+        (Settings.Loot.ResistanceWatch.Lightning, "Raio (L)"),
+        (Settings.Loot.ResistanceWatch.Chaos, "Caos (X)"),
+    ];
+
+    /// <summary>
+    /// What the character actually has, next to the target it is judged by.
+    /// </summary>
+    /// <remarks>
+    /// The automatic mode decides silently, and a mark that never appears is
+    /// indistinguishable from one that is broken. Showing the four numbers the
+    /// decision was made from turns "it is not working" into "it thinks I am
+    /// capped", which is a question somebody can answer.
+    /// </remarks>
+    private void ResistanceReadout(int target)
+    {
+        if (_resists is not { IsKnown: true } r)
+        {
+            ImGui.TextDisabled(T("resistencias: nao lidas ainda"));
+
+            return;
+        }
+
+        foreach (var (kind, label, colour) in ResistanceReadouts)
+        {
+            var value = r.Of(kind);
+            var missing = r.Missing(kind, target);
+
+            ImGui.TextColored(ToVec4(colour), label);
+            ImGui.SameLine(70);
+            ImGui.TextUnformatted(value.ToString());
+            ImGui.SameLine(110);
+
+            if (missing > 0)
+                ImGui.TextDisabled(T("faltam ") + missing);
+            else
+                ImGui.TextColored(ToVec4(Palette.Good), T("ok"));
+        }
+    }
+
+    private static readonly (Core.Snapshots.ResistanceKind Kind, string Label, uint Colour)[] ResistanceReadouts =
+    [
+        (Core.Snapshots.ResistanceKind.Fire, "F", Palette.Rgba(255, 140, 60)),
+        (Core.Snapshots.ResistanceKind.Cold, "C", Palette.Rgba(90, 200, 255)),
+        (Core.Snapshots.ResistanceKind.Lightning, "L", Palette.Rgba(255, 230, 90)),
+        (Core.Snapshots.ResistanceKind.Chaos, "X", Palette.Rgba(190, 120, 255)),
+    ];
+
     private void DrawBuildTags()
     {
         var loot = _settings.Loot;
@@ -809,15 +874,58 @@ internal sealed class SettingsWindow
 
         ImGui.Separator();
         ImGui.TextDisabled(T("Resistencias"));
-        ImGui.TextDisabled(T("Marca itens que fecham uma resist que ainda nao esta capada."));
-        ImGui.TextDisabled(T("Some sozinho quando tudo estiver em 75."));
 
         var resists = loot.ShowResistanceHelp;
-        if (ImGui.Checkbox(T("Marcar o que falta##resist"), ref resists))
+        if (ImGui.Checkbox(T("Marcar resistencias nos itens##resist"), ref resists))
             _settings.Loot = loot with { ShowResistanceHelp = resists };
 
         if (resists)
         {
+            // Who decides. Automatic is right while levelling and wrong the
+            // moment somebody is shopping on purpose, so the choice is here
+            // rather than assumed.
+            var mode = (int)loot.ResistanceMode;
+
+            if (ImGui.Combo(T("Quem escolhe##resistmode"), ref mode,
+                    T("O que falta para o alvo") + NUL + T("Eu escolho quais") + NUL))
+                _settings.Loot = loot with { ResistanceMode = (ResistanceMode)mode };
+
+            if (loot.ResistanceMode == ResistanceMode.Missing)
+            {
+                ImGui.TextDisabled(T("Marca so o que ainda nao chegou no alvo. Some quando tudo chegar."));
+
+                var target = loot.ResistanceTarget;
+
+                if (ImGui.SliderInt(T("Alvo##resist"), ref target, 0, 90))
+                    _settings.Loot = loot with { ResistanceTarget = target };
+
+                // The character's own numbers, so the mark can be believed
+                // or disbelieved rather than only obeyed.
+                ResistanceReadout(loot.ResistanceTarget);
+            }
+            else
+            {
+                ImGui.TextDisabled(T("Marca sempre os elementos marcados, esteja capado ou nao."));
+
+                var watch = loot.ResistanceWatchMask;
+
+                foreach (var (flag, label) in ResistanceLabels)
+                {
+                    var on = (watch & (int)flag) != 0;
+
+                    if (ImGui.Checkbox(T(label), ref on))
+                    {
+                        watch = on ? watch | (int)flag : watch & ~(int)flag;
+
+                        _settings.Loot = loot with { ResistanceWatchMask = watch };
+                    }
+
+                    ImGui.SameLine();
+                }
+
+                ImGui.NewLine();
+            }
+
             var resistCorner = Corner(T("Canto##resist"), loot.ResistanceCorner);
             if (resistCorner != loot.ResistanceCorner)
                 _settings.Loot = loot with { ResistanceCorner = resistCorner };

@@ -771,4 +771,59 @@ internal sealed class GameEntity
         count = (int)(span / stride);
         return true;
     }
+
+    /// <summary>
+    /// The four resistances, or unknown when the table cannot be read.
+    /// </summary>
+    /// <remarks>
+    /// Unknown rather than zero, deliberately. A character with no resistance
+    /// and a character whose stats did not resolve look identical if the answer
+    /// is a number either way, and only one of them wants every ring on screen
+    /// marked as an upgrade.
+    ///
+    /// One block read for the whole vector. The four keys are scattered through
+    /// ninety-odd entries and finding them field-at-a-time would be ninety
+    /// crossings for four numbers.
+    /// </remarks>
+    public ResistanceSnapshot Resistances()
+    {
+        if (!Components().TryGetValue(GameLayout.Names.Stats, out var stats))
+            return ResistanceSnapshot.Unknown;
+
+        if (!_memory.TryReadPointer(stats + GameLayout.StatTable.Struct, out var table) || table == 0)
+            return ResistanceSnapshot.Unknown;
+
+        if (!_memory.TryReadPointer(
+                table + GameLayout.StatTable.Vector + GameLayout.Native.VectorFirst, out var first) ||
+            !_memory.TryReadPointer(
+                table + GameLayout.StatTable.Vector + GameLayout.Native.VectorLast, out var last) ||
+            first == 0 || last <= first)
+            return ResistanceSnapshot.Unknown;
+
+        var span = (int)(last - first);
+
+        if (span is <= 0 or > 8192) return ResistanceSnapshot.Unknown;
+        if (!_memory.TryReadBytes(first, span, out var bytes)) return ResistanceSnapshot.Unknown;
+
+        int fire = 0, cold = 0, lightning = 0, chaos = 0;
+        var found = 0;
+
+        for (var at = 0; at + GameLayout.StatTable.Stride <= bytes.Length;
+             at += GameLayout.StatTable.Stride)
+        {
+            var key = BitConverter.ToInt32(bytes, at + GameLayout.StatTable.KeyOffset);
+            var value = BitConverter.ToInt32(bytes, at + GameLayout.StatTable.ValueOffset);
+
+            if (key == GameLayout.StatTable.FireResistance) { fire = value; found++; }
+            else if (key == GameLayout.StatTable.ColdResistance) { cold = value; found++; }
+            else if (key == GameLayout.StatTable.LightningResistance) { lightning = value; found++; }
+            else if (key == GameLayout.StatTable.ChaosResistance) { chaos = value; found++; }
+        }
+
+        // All four or none. Three of them and a silent zero is the shape of a
+        // wrong key, and a wrong resistance reads as a capped one.
+        return found == 4
+            ? new ResistanceSnapshot(fire, cold, lightning, chaos)
+            : ResistanceSnapshot.Unknown;
+    }
 }

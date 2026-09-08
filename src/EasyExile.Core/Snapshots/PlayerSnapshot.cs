@@ -1,4 +1,4 @@
-using EasyExile.Core.Spatial;
+﻿using EasyExile.Core.Spatial;
 
 namespace EasyExile.Core.Snapshots;
 
@@ -17,4 +17,9 @@ public sealed record PlayerSnapshot(
     int EnergyShield,
     int MaxEnergyShield,
     Vector3? WorldPosition,
-    Vector2? GridPosition);
+    Vector2? GridPosition,
+    ResistanceSnapshot? Resistances = null)
+{
+    /// <summary>The four resistances, never null so a feature need not check.</summary>
+    public ResistanceSnapshot Resists => Resistances ?? ResistanceSnapshot.Unknown;
+}

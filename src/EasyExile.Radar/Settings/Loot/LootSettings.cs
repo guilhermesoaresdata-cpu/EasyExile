@@ -240,6 +240,38 @@ public sealed record LootSettings
     /// </remarks>
     public bool ShowResistanceHelp { get; init; } = true;
 
+    /// <summary>
+    /// Whether the tool decides what is worth marking, or the player does.
+    /// </summary>
+    /// <remarks>
+    /// Automatic is the default because it is right while levelling, when the
+    /// gaps are large and change every hour. It is wrong the moment somebody is
+    /// shopping on purpose - over-capping for a map, gearing a second set - and
+    /// wrong for good when the stats cannot be read, where automatic means
+    /// permanently silent.
+    /// </remarks>
+    public ResistanceMode ResistanceMode { get; init; } = ResistanceMode.Missing;
+
+    /// <summary>
+    /// The elements to mark when the player is choosing them.
+    /// </summary>
+    /// <remarks>
+    /// Stored as a number for the same reason the build mask is: the settings
+    /// file is one key per line, and a flags value writes itself with commas.
+    /// </remarks>
+    public int ResistanceWatchMask { get; init; } = (int)ResistanceWatch.All;
+
+    /// <summary>
+    /// The number a resistance is trying to reach.
+    /// </summary>
+    /// <remarks>
+    /// Seventy-five is the cap and the right target almost always. It is not
+    /// the target while stacking against a specific map modifier, and it is too
+    /// high early in the campaign, where aiming at everything at once means
+    /// every ring is marked and none of them stands out.
+    /// </remarks>
+    public int ResistanceTarget { get; init; } = EasyExile.Core.Snapshots.ResistanceSnapshot.Cap;
+
     public ChipCorner ResistanceCorner { get; init; } = ChipCorner.BottomRight;
 
     public int ResistanceColour { get; init; } = unchecked((int)0xFF5AC8F0);

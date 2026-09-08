@@ -125,6 +125,104 @@ public class ResistanceTests
     /// - orange for fire, blue for cold - which is what saves anyone from
     /// having to remember that G means cold.
     /// </remarks>
+    // ---- the player choosing, instead of the tool ---------------------------
+
+    [Fact]
+    public void Chosen_mode_marks_what_was_ticked_even_at_the_cap()
+    {
+        // The whole reason this mode exists. Automatic is right while levelling
+        // and wrong for somebody deliberately over-capping for a map, who is
+        // short of nothing and still shopping.
+        var loot = new LootSettings
+        {
+            ResistanceMode = ResistanceMode.Chosen,
+            ResistanceWatchMask = (int)ResistanceWatch.Fire,
+        };
+
+        Assert.Equal("+F", Mark(Draw(loot, Resists(fire: 90), "FireResist8")));
+    }
+
+    [Fact]
+    public void Chosen_mode_ignores_elements_that_were_not_ticked()
+    {
+        var loot = new LootSettings
+        {
+            ResistanceMode = ResistanceMode.Chosen,
+            ResistanceWatchMask = (int)ResistanceWatch.Cold,
+        };
+
+        // Fire is wide open and still not marked: in this mode the character's
+        // own numbers are not consulted at all.
+        Assert.Empty(Draw(loot, Resists(fire: 0), "FireResist8").Texts);
+        Assert.Equal("+C", Mark(Draw(loot, Resists(cold: 70), "ColdResist8")));
+    }
+
+    [Fact]
+    public void Chosen_mode_still_answers_when_the_stats_could_not_be_read()
+    {
+        // Automatic goes silent for ever here, because it cannot tell a
+        // character with no resistance from one it failed to read. Choosing the
+        // elements yourself is the way out of that.
+        var loot = new LootSettings
+        {
+            ResistanceMode = ResistanceMode.Chosen,
+            ResistanceWatchMask = (int)ResistanceWatch.All,
+        };
+
+        Assert.Empty(Draw(ResistanceSnapshot.Unknown, "FireResist8").Texts);
+        Assert.Equal("+F", Mark(Draw(loot, ResistanceSnapshot.Unknown, "FireResist8")));
+    }
+
+    [Fact]
+    public void Nothing_ticked_draws_nothing()
+    {
+        // Switching every element off is a way of turning the mark off, and it
+        // must not fall back to marking everything.
+        var loot = new LootSettings
+        {
+            ResistanceMode = ResistanceMode.Chosen,
+            ResistanceWatchMask = (int)ResistanceWatch.None,
+        };
+
+        Assert.Empty(Draw(loot, Resists(fire: 0), "FireResist8").Texts);
+    }
+
+    // ---- a target other than the cap ---------------------------------------
+
+    [Fact]
+    public void A_lower_target_stops_marking_what_already_reached_it()
+    {
+        // Early in the campaign, aiming all four at 75 marks every ring and
+        // singles out none. A reachable target is what makes the mark mean
+        // something again.
+        var loot = new LootSettings { ResistanceTarget = 30 };
+
+        Assert.Empty(Draw(loot, Resists(fire: 35), "FireResist8").Texts);
+        Assert.Equal("+F", Mark(Draw(loot, Resists(fire: 20), "FireResist8")));
+    }
+
+    [Fact]
+    public void A_higher_target_keeps_marking_past_the_cap()
+    {
+        var loot = new LootSettings { ResistanceTarget = 80 };
+
+        Assert.Equal("+F", Mark(Draw(loot, Resists(fire: 75), "FireResist8")));
+    }
+
+    [Fact]
+    public void The_target_decides_whether_the_feature_says_anything_at_all()
+    {
+        // The early return that keeps a capped character from seeing a mark on
+        // every ring has to move with the target too, or a raised target would
+        // be silently ignored.
+        var capped = Resists(fire: 75, cold: 75, lightning: 75, chaos: 75);
+
+        Assert.Empty(Draw(new LootSettings(), capped, "FireResist8").Texts);
+        Assert.Equal(
+            "+F",
+            Mark(Draw(new LootSettings { ResistanceTarget = 80 }, capped, "FireResist8")));
+    }
+
     private static string Mark(RecordingCanvas canvas) =>
         string.Concat(canvas.ColouredTexts.Select(t => t.Text));
 
@@ -153,11 +251,15 @@ public class ResistanceTests
         new(new ItemSnapshot("Art", "Ring", MonsterRarity.Rare, true, affixes.ToImmutableArray()),
             1, 80f, 80f, 60f, 60f);
 
-    private static RecordingCanvas Draw(ResistanceSnapshot resists, params string[] affixes)
+    private static RecordingCanvas Draw(ResistanceSnapshot resists, params string[] affixes) =>
+        Draw(new LootSettings(), resists, affixes);
+
+    private static RecordingCanvas Draw(
+        LootSettings loot, ResistanceSnapshot resists, params string[] affixes)
     {
         var canvas = new RecordingCanvas();
 
-        new ResistanceFeature(new RadarSettings { Loot = new LootSettings() }, Away)
+        new ResistanceFeature(new RadarSettings { Loot = loot }, Away)
             .Draw(Frame(resists, [Slot(affixes)], null), canvas);
 
         return canvas;

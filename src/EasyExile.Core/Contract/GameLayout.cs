@@ -390,8 +390,51 @@ internal static class GameLayout
         public const string Render = Offsets.ComponentNames.Render;
         public const string Positioned = Offsets.ComponentNames.Positioned;
         public const string Stats = Offsets.ComponentNames.Stats;
+
         public const string Inventories = Offsets.ComponentNames.Inventories;
         public const string Actor = Offsets.ComponentNames.Actor;
         public const string Buffs = Offsets.ComponentNames.Buffs;
     }
+
+/// <summary>
+/// The character's stat table: a flat list of keyed numbers.
+/// </summary>
+/// <remarks>
+/// The keys are the client's own and the contract is explicit that their
+/// meanings are NOT established - one of them tracked a current value in one
+/// session and a maximum in another. So nothing here names a stat; a reader has
+/// to establish which key is which by matching values it can also see, and say
+/// so rather than assume.
+/// </remarks>
+internal static class StatTable
+{
+    /// <summary>From the Stats component to the struct holding the table.</summary>
+    public static int Struct => Offsets.Stats.StatsStructInternal;
+
+    /// <summary>The vector of entries inside that struct.</summary>
+    public static int Vector => Offsets.StatsStructInternal.StatVector;
+
+    /// <summary>Each entry is a key and a value, side by side.</summary>
+    public const int KeyOffset = 0;
+
+    public const int ValueOffset = 4;
+
+    public const int Stride = 8;
+
+    /// <summary>
+    /// The keys the four resistances live under.
+    /// </summary>
+    /// <remarks>
+    /// Identities of the client's own, so they belong in the contract like any
+    /// offset - and they were established the same way, by matching numbers
+    /// that could also be seen on the character sheet.
+    /// </remarks>
+    public static int FireResistance => Offsets.Stats.FireResistanceKey;
+
+    public static int ColdResistance => Offsets.Stats.ColdResistanceKey;
+
+    public static int LightningResistance => Offsets.Stats.LightningResistanceKey;
+
+    public static int ChaosResistance => Offsets.Stats.ChaosResistanceKey;
+}
 }

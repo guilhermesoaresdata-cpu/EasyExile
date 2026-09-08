@@ -3,6 +3,7 @@ using EasyExile.Core.Spatial;
 using EasyExile.Radar.Pricing;
 using EasyExile.Radar.Rendering;
 using EasyExile.Radar.Settings;
+using EasyExile.Radar.Settings.Loot;
 
 namespace EasyExile.Radar.Features.Loot;
 
@@ -20,6 +21,13 @@ using static EasyExile.Radar.UI.Text;
 /// It goes quiet in two cases, both on purpose: when the stats could not be
 /// read at all, and when everything is already capped. A number that might be
 /// wrong is worse than no number, and a mark that is always on is not a mark.
+///
+/// That is the automatic rule, and it is the wrong one often enough to need a
+/// way out. Somebody over-capping for a map's elemental damage is short of
+/// nothing and still shopping; somebody whose stats could not be read gets
+/// silence for ever. So the player can take the decision instead and name the
+/// elements they want to see, which is the same mark driven by a different
+/// question.
 /// </remarks>
 public sealed class ResistanceFeature : IRadarFeature
 {
@@ -40,21 +48,34 @@ public sealed class ResistanceFeature : IRadarFeature
     {
         if (!Enabled || !frame.HasWorld) return;
 
+        var options = _settings.Loot;
         var resists = frame.Snapshot!.Player.Resists;
+        var chosen = options.ResistanceMode == ResistanceMode.Chosen;
 
-        // Unknown stats and a capped character both mean there is nothing
-        // useful to say, and saying it anyway would put a mark on every ring.
-        if (!resists.AnyMissing) return;
+        // Automatic: unknown stats and a character already at the target both
+        // mean there is nothing useful to say, and saying it anyway would put a
+        // mark on every ring in the game.
+        //
+        // Chosen: the character's own numbers are not consulted at all, which
+        // is the point - it answers "show me cold" rather than "show me what I
+        // am short of", and it still answers when the stats are unreadable.
+        if (chosen)
+        {
+            if ((ResistanceWatch)options.ResistanceWatchMask == ResistanceWatch.None) return;
+        }
+        else if (!resists.AnyBelow(options.ResistanceTarget))
+        {
+            return;
+        }
 
         var cursor = _cursor();
-        var options = _settings.Loot;
         var scale = options.TextScale * options.ModTierScale;
 
         foreach (var slot in frame.Panels.Slots)
         {
             if (frame.Panels.IsCovered(slot, cursor.X, cursor.Y)) continue;
 
-            var helps = Helps(slot.Item.Affixes, resists);
+            var helps = Helps(slot.Item.Affixes, resists, options);
 
             if (helps.Length == 0) continue;
 
@@ -92,8 +113,12 @@ public sealed class ResistanceFeature : IRadarFeature
     /// counts for every gap at once.
     /// </remarks>
     private static string Helps(
-        System.Collections.Immutable.ImmutableArray<string> affixes, ResistanceSnapshot resists)
+        System.Collections.Immutable.ImmutableArray<string> affixes,
+        ResistanceSnapshot resists,
+        Settings.Loot.LootSettings options)
     {
+        var chosen = options.ResistanceMode == ResistanceMode.Chosen;
+        var watched = (ResistanceWatch)options.ResistanceWatchMask;
         var mark = string.Empty;
 
         foreach (var affix in affixes)
@@ -104,10 +129,15 @@ public sealed class ResistanceFeature : IRadarFeature
 
             var all = family.Contains("all", StringComparison.OrdinalIgnoreCase);
 
-            foreach (var (kind, letter, word) in Kinds)
+            foreach (var (kind, letter, word, flag) in Kinds)
             {
                 if (!all && !family.Contains(word, StringComparison.OrdinalIgnoreCase)) continue;
-                if (resists.Missing(kind) <= 0) continue;
+
+                // The one line that differs between the two modes: what makes
+                // an element worth a letter.
+                if (chosen ? (watched & flag) == 0 : resists.Missing(kind, options.ResistanceTarget) <= 0)
+                    continue;
+
                 if (mark.Contains(letter, StringComparison.Ordinal)) continue;
 
                 mark += letter;
@@ -128,14 +158,14 @@ public sealed class ResistanceFeature : IRadarFeature
     };
 
     /// <summary>The four, with the word that names each in a family.</summary>
-    private static readonly (ResistanceKind Kind, string Letter, string Word)[] Kinds =
+    private static readonly (ResistanceKind Kind, string Letter, string Word, ResistanceWatch Flag)[] Kinds =
     [
         // English initials, matching the words the item and the character sheet
         // both use. The first version took them from Portuguese - G for gelo, R
         // for raio - and collided with itself as well as costing a translation.
-        (ResistanceKind.Fire, "F", "fire"),
-        (ResistanceKind.Cold, "C", "cold"),
-        (ResistanceKind.Lightning, "L", "lightning"),
-        (ResistanceKind.Chaos, "X", "chaos"),
+        (ResistanceKind.Fire, "F", "fire", ResistanceWatch.Fire),
+        (ResistanceKind.Cold, "C", "cold", ResistanceWatch.Cold),
+        (ResistanceKind.Lightning, "L", "lightning", ResistanceWatch.Lightning),
+        (ResistanceKind.Chaos, "X", "chaos", ResistanceWatch.Chaos),
     ];
 }
