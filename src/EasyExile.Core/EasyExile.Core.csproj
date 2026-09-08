@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The only project in the product that references the offset contract. It is a
+    plain assembly reference and not a ProjectReference on purpose: the Analyzer
+    solution is a separate producer, and GameOffsets.dll crosses the boundary as
+    a compiled artefact.
+
+    Everything inside GameOffsets is const, so the compiler folds the values in
+    and no assembly reference survives at runtime. See main/CONTRACT_WORKFLOW.md.
+  -->
+  <ItemGroup>
+    <Reference Include="GameOffsets">
+      <HintPath>..\..\libs\GameOffsets.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <!--
+    The memory layer and the raw world readers are internal. Tests need them to
+    drive a fake address space, and Diagnostics exists precisely to prove the raw
+    layer works against the live client. EasyExile.Radar is deliberately absent:
+    it consumes snapshots and nothing else, and an architecture test enforces it.
+  -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="EasyExile.Core.Tests" />
+    <InternalsVisibleTo Include="EasyExile.Diagnostics" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The curated landmark labels, embedded so a published build is one file. -->
+    <EmbeddedResource Include="World\CustomLandmarks.json" />
+  </ItemGroup>
+
+</Project>

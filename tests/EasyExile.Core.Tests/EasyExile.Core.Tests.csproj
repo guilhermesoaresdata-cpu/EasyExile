@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <!--
+    Radar is referenced so the architecture tests can inspect its real assembly
+    rather than assert about a project file. Nothing in the test code calls into
+    it beyond reflection.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EasyExile.Core\EasyExile.Core.csproj" />
+    <ProjectReference Include="..\..\src\EasyExile.Radar\EasyExile.Radar.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <!-- The shipped campaign, so a test can read the same file the overlay does. -->
+    <None Include="..\..\src\EasyExile.Radar\campaign.txt" Link="campaign.txt"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

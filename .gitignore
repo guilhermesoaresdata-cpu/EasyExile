@@ -1,0 +1,24 @@
+.vs/
+.vscode/
+.idea/
+bin/
+obj/
+TestResults/
+*.user
+*.suo
+*.log
+*.err
+*.trx
+*.coverage
+
+# Per-machine overlay state and generated runtime data
+imgui.ini
+prices.json
+area-watch.txt
+mapui-watch.txt
+
+# Reproducible research/tool caches
+tools/support-advice/cache/
+
+# The validated producer/consumer contract is intentionally versioned.
+!libs/GameOffsets.dll

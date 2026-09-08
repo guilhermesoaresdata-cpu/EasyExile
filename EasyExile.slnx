@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/EasyExile.Core/EasyExile.Core.csproj" />
+    <Project Path="src/EasyExile.Radar/EasyExile.Radar.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/EasyExile.Core.Tests/EasyExile.Core.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/EasyExile.Diagnostics/EasyExile.Diagnostics.csproj" />
+  </Folder>
+</Solution>

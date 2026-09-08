@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- The overlay owns a Win32 message loop; a console would fight it for the
+         process lifetime and show a black box behind a transparent window. -->
+  </PropertyGroup>
+
+  <!--
+    Core carries the game state. Nothing else may.
+    EasyExile.Core.Tests asserts this list, so a new entry here is a deliberate,
+    reviewable change rather than something that appears by accident.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\EasyExile.Core\EasyExile.Core.csproj" />
+  </ItemGroup>
+
+  <!--
+    Rendering stack. See Overlay/BACKEND.md for why these and not others.
+
+    ClickableTransparentOverlay  Apache-2.0  external transparent Win32 window,
+                                 D3D11 swap chain and the ImGui backends, which
+                                 are ports of the upstream imgui_impl_dx11 and
+                                 imgui_impl_win32. No injection, no hooking.
+    ImGui.NET                    MIT         bindings plus the native cimgui.
+
+    SixLabors.ImageSharp arrives transitively and is pinned forward: the version
+    ClickableTransparentOverlay asks for (3.1.6) carries a high severity advisory
+    (GHSA-2cmq-823j-5qj8). EasyExile loads no images, but the assembly still
+    ships, so the patched version is referenced directly to keep the build clean.
+  -->
+  <ItemGroup>
+    <PackageReference Include="ClickableTransparentOverlay" Version="11.1.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <!-- The campaign's zone order. Data, not code: it is read at run time so it
+         can be corrected without a rebuild. -->
+    <None Update="campaign.txt" CopyToOutputDirectory="PreserveNewest" />
+
+    <!-- How many tiers each mod family has. The tier itself is in the mod's own
+         name; this is only the ceiling that turns it into "T1". -->
+    <None Update="modtiers.json" CopyToOutputDirectory="PreserveNewest" />
+
+    <!-- Which supports go in each skill, best first. Built once by
+         tools/support-advice/fetch.py from poe2db's recommendations - a curated
+         ranking, not a count of what real builds run. -->
+    <None Update="supports.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

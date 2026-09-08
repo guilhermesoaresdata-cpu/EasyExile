@@ -1,0 +1,37 @@
+name: Bug report
+description: Report a reproducible EasyExile defect
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: input
+    id: component
+    attributes:
+      label: Component
+      placeholder: Core, Radar, native map, navigation, loot, diagnostics...
+    validations:
+      required: true
+  - type: input
+    id: fingerprint
+    attributes:
+      label: Client fingerprint
+      description: Required for live-data defects; use N/A for deterministic or UI-only defects.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Relevant evidence
+      description: Redact account information and never attach full process dumps.

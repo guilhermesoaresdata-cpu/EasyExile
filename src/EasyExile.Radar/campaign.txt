@@ -1,0 +1,291 @@
+# EasyExile campaign guide.
+#
+# A linear list of typed ACTIONS, not a list of zones. That distinction is the
+# whole file: several things happen inside one zone, and the zone listed after
+# this one is often not reachable through a door from it — The Bone Pits is a
+# pocket off Mastodon Badlands and you leave it by waypoint. A guide that only
+# knows zones stands in the pocket waiting for a door.
+#
+# The shape is exile-leveling's (MIT, github.com/HeartofPhos/exile-leveling),
+# which is the model every good levelling tool converged on.
+#
+# Keyed by the client's INTERNAL area code, never by the displayed name: the
+# code is the same in every language, and this client is not in English.
+#
+#   act <n> <name>
+#   zone  <code> <name>        a zone on the main line
+#   zone? <code> <name>        an optional zone
+#   enter <code> <name>        walk to the door leading there
+#   waypoint                   take the waypoint or portal out
+#   kill  <name>               kill something in this zone
+#   take  <name>               pick something up in this zone
+#   talk  <name>               speak to someone in this zone
+#   note  <text>               anything else
+#   a trailing ? on a verb marks the step optional; " | " starts a hint
+#
+# Area codes from path-of-levelling-2 (MIT) cross-checked against codes this
+# tool learned from the running client. Step content derived from the community
+# walkthrough collected in github.com/nicolasbagatello/poe2-helper.
+
+act 1 Act One
+zone G1_2 Clearfell
+kill Beira of the Rotten Pack | Sempre ao norte ou nordeste do waypoint
+enter G1_4 Grelwood | Use o checkpoint da Beira para voltar se achar a saida primeiro
+take? o Acampamento Misterioso | Gema de suporte bruta - nasce a esquerda ou a direita do inicio
+zone? G1_3 Mud Burrow
+kill? The Devourer | Zona inteira e opcional - speedrunners pulam
+zone G1_4 The Grelwood
+take o waypoint e fale com o NPC da quest | O waypoint fica mais ou menos no centro da zona
+enter G1_6 Grim Tangle | Entre, pegue o waypoint e volte para Grelwood
+enter G1_5 Red Vale | Entre, pegue o waypoint e volte para Grelwood
+enter G1_5 Red Vale | Pelo waypoint ou pelo checkpoint
+kill? Brambleghast | Gema de habilidade bruta nivel 2
+take? o Caldeirao no encontro da Cabana da Bruxa | Frasco medio de vida ou mana de graca
+zone G1_5 The Red Vale
+take os tres obeliscos e pegue os tres itens de quest | De uma volta pela zona para achar os tres Rust Altars
+note Volte para Grelwood para a sequencia de cidade | Veja as visitas a cidade para o passo a passo
+zone G1_6 The Grim Tangle
+enter G1_7 Cemetery of the Eternals | Va na direcao oposta a entrada, onde a area se abre
+kill? The Rotten Druid | Gema de suporte bruta
+zone G1_7 Cemetery of the Eternals
+take o Mausoleum e mate o boss la dentro | No segundo boss use o checkpoint para voltar ao inicio, depois waypoint para Cemetery
+take o Tomb e mate o boss la dentro | Faz parte da quest Sorrow Among Stones
+talk Lachlann, abra o portao e mate Lachlann | Boss principal, depois das duas tumbas
+enter G1_11 Hunting Grounds | Segue para a proxima zona
+zone G1_8 Mausoleum of the Praetor
+kill Draven | Necessario para a quest Sorrow Among Stones
+zone G1_9 Tomb of the Consort
+kill Asinia | Necessario para a quest Sorrow Among Stones
+note? na Tomb, o encontro Embattled Trove | Gema de suporte bruta
+zone G1_11 Hunting Grounds
+kill Crowbell | 2 pontos de passiva - siga as bordas, os pontos ficam nos cantos
+enter G1_13_1 Ogham Farmlands | Entre, pegue o waypoint e volte para Hunting Grounds
+enter G1_12 Freythorn | Entre, pegue o waypoint e volte para Hunting Grounds
+enter G1_12 Freythorn | De portal para a cidade e waypoint, se nao for a ultima que achou
+take? o local do Ritual | Gema de habilidade bruta nivel 4
+take? o encontro da Dryad | Gema de suporte bruta
+zone G1_12 Freythorn
+note Faca os 4 rituais e mate King in the Mists no quarto | +30 de spirit (so na dificuldade normal) - de uma volta para achar todos
+enter G1_13_1 Ogham Farmlands | De portal para a cidade e waypoint
+zone G1_13_1 Ogham Farmlands
+take o alaude da Una | Mais ou menos no centro da zona - 2 pontos de passiva
+enter G1_13_2 Ogham Village | A saida fica sempre na parede oposta a entrada
+take? o Crop Circle e mate o cachorro raro | Gema de habilidade bruta nivel 4
+zone G1_13_2 Ogham Village
+take as ferramentas de ferraria | So no primeiro personagem da liga - libera a bancada de salvage
+kill the Executioner | Quest Save Leitis - cole na parede da direita e va para o norte
+enter G1_14 Manor Ramparts | Segue para a proxima zona
+zone G1_14 The Manor Ramparts
+enter G1_15 Ogham Manor | Faca um U - sempre na direcao oposta ao waypoint depois de entrar
+take? a Forca | O lugar da tela de criacao de personagem - gema de suporte bruta
+zone G1_15 Ogham Manor: First Floor
+kill Candlemass | Se achar a escada antes, desca, pegue o checkpoint e volte
+take as escadas e desca duas vezes | Depois de matar Candlemass da para ir de checkpoint ate a escada
+zone G1_15 Ogham Manor: Second Floor
+enter - third floor entrance | Direcao oposta a entrada, atravesse a ponte, va para nordeste se comecou a sudoeste
+zone G1_15 Ogham Manor: Third Floor
+take o elevador ate o boss, mate e volte para a cidade | Fecha o Ato 1 - va na direcao oposta a entrada
+
+act 2 Act Two
+zone G2_1 Vastiri Outskirts
+kill Rathbreaker | Faca um Z pela parede interna ate achar o canion estreito
+waypoint | Da para apertar ESC e renascer no checkpoint
+zone G2_10_1 Mawdun Quarry
+enter G2_10_2 Mawdun Mine | Faca um S ou um Z, cole na parede e siga as pontes
+zone G2_10_2 Mawdun Mine
+kill Rudja | Mapa em losango - va para o norte do spawn, boss no topo
+talk Risu e volte de portal para a cidade | Progressao da historia principal
+zone G2_2 Traitor's Passage
+kill Balbala e pegue o item Djinn Barya | Siga os selos de papel amarelo - libera a Trial of the Sekhema
+enter G2_3a the Halani Gates | Escada subindo quer dizer que voce esta no caminho certo
+take? o Bell Chest | Duas gemas de habilidade brutas nivel 6 (NAO CONFIRMADO)
+zone G2_3a The Halani Gates
+kill Jamanra the Risen King | Fique perto do canion - atravesse ele tres vezes
+note Desca as escadas ate o canto inferior direito e volte para a cidade | Mapa linear e estreito - va na direcao oposta a entrada
+zone G2_4_1 Keth
+kill Kabala, the Constrictor Queen | Mais ou menos no meio - 2 pontos de passiva
+kill cobras ate cair a reliquia do Kabala Clan | Tambem cai na Lost City
+enter G2_4_2 the Lost City | Sempre no canto inferior direito depois da ponte grande - pegue o checkpoint
+enter G2_4_2 the Lost City | Segue para a proxima zona
+zone G2_4_2 The Lost City
+take a saida e va para Buried Shrines | Atravesse a ponte em V e siga na direcao oposta a entrada
+take? a Golden Tomb | Gema de spirit bruta
+take? o Ninth Treasure of Keth, o besouro dourado grande | Aparece como 'The Galleria' no mapa - joia aleatoria
+zone G2_4_3 Buried Shrines
+take o Heart of Keth | Dois retangulos ligados por pontes - boss ao norte ou a leste
+take? o sarcofago guardado | Gema de suporte bruta
+take? o evento Elemental Offering | Anel de resistencia aleatorio - Ruby ajuda no boss seguinte
+zone G2_5_1 Mastodon Badlands
+enter G2_5_2 the Bone Pits | Cole numa parede ate achar a saida
+take a passagem sem luz para liberar o Well of Souls | Necessario para progredir
+kill hienas ate cair a reliquia do Sun Clan | Nao se preocupe - cai mais facil no Bone Pits
+take? o Shrine of Bones | Efigie rara perto do checkpoint - gema de suporte bruta
+zone G2_5_2 The Bone Pits
+kill o boss da zona e pegue o chifre | Em linha reta com a entrada, depois do arco de ossos
+kill hienas ate cair a reliquia do Sun Clan
+waypoint | Entregue as quests
+zone G2_6 Valley of the Titans
+take os tres selos antigos | Corra pela borda externa - abre a entrada do Titan Grotto
+take o medalhao e encaixe as duas reliquias | O waypoint fica aqui - escolha um buff, da para trocar depois
+enter G2_7 the Titan Grotto | Icone de mao vermelha quando esta selado
+enter G2_7 the Titan Grotto | Segue ate o boss
+zone G2_7 The Titan Grotto
+kill o boss e volte para a cidade | Lado oposto do retangulo - ponte com escadaria longa
+zone G2_8 Deshar
+talk a rhoa abandonada, PORQUE E A COISA CERTA A FAZER | Decisao moral importante
+take a ultima carta num cadaver no chao | Perto de uma torre grande - 2 pontos de passiva na entrega
+enter G2_9_1 the Path of Mourning | Entre, pegue o waypoint e volte para Deshar
+note Va para o Path of Mourning | Segue para a proxima zona
+zone G2_9_1 Path of Mourning
+enter G2_9_2 the Spires of Deshar | Va para o lado oposto da area - possivel padrao 3-3-3
+zone G2_9_2 The Spires of Deshar
+take as Sisters of Garukhan | +10% de resistencia a raio
+kill Tor Gul, the Defiler | Em linha reta, do lado oposto a entrada
+waypoint | Entregue as quests
+zone G2_12_2 The Dreadnought Vanguard
+enter G2_12_2 the Dreadnought Vanguard, then find and kill Jamanra, the Abomination | Mapa linear - fecha o Ato 2
+waypoint | Fim do Ato 2
+
+act 3 Act Three
+zone G3_1 Sandswept Marsh
+enter - the Ziggurat Encampment (town) | Parede mais distante da entrada - corra rente a ela
+kill? Rootdredge | Gema de habilidade bruta nivel 9
+take? o acampamento Orok e saqueie a cesta rara | 'Azak Campfire' - mate os dois raros - lesser jeweller's orb
+take? a Hanging Tree e saqueie o cadaver magico | Anel magico aleatorio
+zone G3_3 Jungle Ruins
+enter G3_4 Venom Crypts (near waypoint) | NAO atravesse - so pegue o checkpoint e o waypoint
+kill the Mighty Silverfist | 2 pontos de passiva - quase sempre no terco superior
+enter G3_2_1 the Infested Barrens | NAO atravesse - so pegue o checkpoint
+enter G3_2_1 the Infested Barrens | Segue a progressao da zona
+zone G3_4 The Venom Crypts
+take o cadaver com o frasco de veneno e volte para a cidade | Fica na Den of the Serpent Priestess
+zone G3_2_1 Infested Barrens
+enter G3_5 Chimeral Wetlands | Entre, pegue o waypoint e volte para Infested Barrens
+enter G3_7 Azak Bog | Entre, pegue o waypoint e volte para Infested Barrens
+enter G3_2_2 the Matlan Waterways | O waypoint da propria Barrens fica aqui
+note Do ultimo que achar, pegue o waypoint e volte de portal para Jungle Ruins | Volte para terminar a Venom Crypts
+zone G3_7 The Azak Bog
+take? o ritual Flameskin e ative todos | 25% de res a fogo e raridade pelo resto da zona - nao procure se nao achou antes do boss
+kill Ignagduk | +30 de spirit - quadrante superior direito
+waypoint | Pelo waypoint
+zone G3_5 Chimeral Wetlands
+take o templo da Trial of Chaos | Entre, pegue o waypoint e volte - da para fazer a trial a qualquer momento
+kill o boss Chimera | Siga a borda esquerda da zona - libera a Trial of Chaos
+enter G3_6_1 Jiquani's Machinarium | Atras do boss Chimera
+zone G3_6_1 Jiquani's Machinarium
+take o primeiro soul core pequeno e abra a porta | A esquerda ou a direita da Alva - escute o tilintar
+take mais dois soul cores pequenos | Sao 3 no total, so precisa de 2 - a terceira porta so tem ouro
+enter G3_6_2 Jiquani's Sanctum | Quase sempre em linha reta a partir do inicio da segunda secao
+kill Blackjaw | +10% de resistencia a fogo
+waypoint | Segue a progressao
+zone G3_6_2 Jiquani's Sanctum
+note Ative o waypoint logo depois da entrada | Importante para voltar depois
+talk Alva
+take dois soul cores medios | Os soul cores nascem em lugares aleatorios da zona
+note Ative os dois geradores | Sempre atras, a esquerda e a direita de onde a Alva esta
+note Volte de checkpoint ate a Alva | Ainda precisa esperar o segundo soul core chegar, linhas vermelhas no chao
+kill Zicoatl, Warden of the Core, e pegue o soul core grande | Necessario para progredir
+note Volte ao waypoint da Infested Barrens | Encaixe o soul core grande la
+zone G3_2_2 The Matlan Waterways
+note Ative todas as alavancas para atravessar a zona e depois a grande no final | Area linear - precisa puxar as alavancas certas para baixar a agua
+note Volte de portal para a cidade
+zone G3_8 The Drowned City
+enter G3_9 the Molten Vault | Quase sempre a noroeste - entre, pegue o waypoint e volte (so no primeiro personagem)
+enter G3_11 the Apex of Filth | Quase sempre a nordeste - entre, pegue o waypoint e volte (so no primeiro personagem)
+enter G3_9 Molten Vault | So no primeiro personagem - libera a bancada de reforja
+enter G3_11 Apex of Filth | Segue a progressao
+zone G3_9 The Molten Vault
+kill o boss e depois fale com Oswald na cidade | So no primeiro personagem - libera a bancada de reforja
+enter G3_11 Apex of Filth | Segue para a proxima zona
+zone G3_11 Apex of Filth
+kill the Queen of Filth e volte de portal para a cidade | Espiral gigante - de a volta completa, boss na parede do topo
+zone G3_12 Temple of Kopec
+note Suba as escadas duas vezes e mate Ketzuli, High Priest of the Sun | Zona triangular - escadas nos cantos - fique na sombra para nao tomar dano
+zone G3_14 Utzaal
+note? O coracao sacrificial pode cair em qualquer lugar desta zona | Se nao achar em Utzaal, siga - nao fique farmando
+note Procure e mate Viper Napuatzi | Na ponta direita da zona, virado para o norte
+enter G3_16 Aggorat and enter Aggorat | De novo na ponta superior direita da zona, virado para o norte
+zone G3_16 Aggorat
+note Siga as vozes da Trial of Atziri na praca grande ate o proximo checkpoint | Deixe o som ligado nesta zona
+enter G3_17 the Black Chambers | Depois da praca grande, sempre na ponta superior esquerda
+take a mesa de sacrificio | Depois da praca grande, sempre na ponta superior direita
+note O coracao sacrificial pode cair em qualquer lugar desta zona | Se ainda nao achou, continue matando ate cair
+waypoint | 2 pontos de passiva
+waypoint | Ultima zona do Ato 3
+zone G3_17 The Black Chambers
+take Doryani, Royal Thaumaturge | Tres secoes ligadas por pontes - lado oposto a entrada
+
+act 4 Act Four
+zone - Kingsmarch (Town)
+talk Doryani, depois Alva, e pegue o Boat Charter | Comeco do Ato 4
+talk Tujen, Ange, Kanu e depois Makoru para escolher a ilha | Whakapanu Island primeiro - Arastas depois das tres ilhas - Ngakanu por ultimo
+zone G4_3_1 Whakapanu Island
+take? a caverna Crabshell e mate o raro | Na beira da praia - gema de suporte bruta nivel 4
+take o Shark Pit, mate the Great White One e pegue a barbatana | Do outro lado da ilha na praia - chegue perto da agua nas brechas da rocha
+take o Petrified Pirate e pegue o pedaco do mapa | 1 de 4 pedacos - libera o Plunder's Point
+enter G4_3_2 the Singing Caverns | Mais ou menos na ponta oposta ao ponto de partida da ilha (NAO CONFIRMADO)
+zone G4_3_2 Singing Caverns
+take? a Beckoning Clam e complete o contador para pegar a Humming Pearl | Entregue ao Rog na cidade - amuleto raro +8 de todas as res
+take a Chamber of Echoes, mate Diamora, Song of Death, e fale com the Hooded One | Boss final de Whakapanu Island - libera o Shoreline Hideout
+note Volte ao Navio e escolha um novo destino | Clique no elemento no canto superior esquerdo da tela
+zone G4_7 Shrike Island
+take o encontro do ninho de cadaveres e pegue o pedaco do mapa | 2 de 4 pedacos
+take os ninhos corrompidos e mate the Scourge of the Skies | Caminho linear - boss no fim
+note Volte ao Navio e escolha um novo destino | Clique no elemento no canto superior esquerdo da tela
+zone G4_5_1 Abandoned Prison
+kill monstros ate cair a Chapel Key | Necessario para o buff permanente
+take a Chapel Door, mate o raro e os lacaios | 30% de recuperacao de vida ou mana dos frascos - da para trocar depois
+enter G4_5_2 the Solitary Confinement | Segue para a proxima zona
+zone G4_5_2 Solitary Confinement
+kill? Bronnach, the Manhunter | Item unico garantido e alguns raros (NAO CONFIRMADO)
+kill The Prisoner | Cole na parede onde as ondas batem
+note Volte ao Navio e escolha um novo destino | Clique no elemento no canto superior esquerdo
+zone G4_1_1 Isle of Kin
+take? o curral, liberte e mate Mimbok the Enslaved | Gema de habilidade nivel 12 e gema de suporte nivel 4 (NAO CONFIRMADO)
+take o barco naufragado e pegue o pedaco do mapa com o marinheiro | 3 de 4 pedacos
+take a arena Primal e mate The Blind Beast | 2 pontos de passiva - va na direcao oposta ao ancoradouro
+enter G4_1_2 the Volcanic Warrens | Na ponta oposta, rente a parede mais distante do inicio
+zone G4_1_2 Volcanic Warrens
+take o trono do Tirano e mate Krutog, Lord of Kin | Lado oposto a entrada
+talk Matiki
+note Volte ao Navio e escolha um novo destino | Clique no elemento no canto superior esquerdo
+zone G4_2_1 Kedge Bay
+take o bau do morto e pegue o pedaco do mapa | 4 de 4 pedacos - libera o Plunder's Point
+enter G4_2_2 Journey's End | Caminho linear e facil
+zone G4_2_2 Journey's End
+note Invoque e fale com Tujen
+take? o navio armadilhado | O tempo comeca no primeiro bau - o que nao pegar some
+take a Cadeira do Capitao, mate Captain Hartlin e pegue o Verisium
+note Volte ao inicio pelo checkpoint e fale com Freya Hartlin
+waypoint
+note Volte a Journey's End e fale com Freya Hartlin de novo
+note Empale os totens e termine o Delirium matando Omniphobia | 2 pontos de passiva - NOVO NA 0.4
+note Volte ao Navio e escolha um novo destino | Clique no elemento no canto superior esquerdo
+zone G4_8b Arastas
+note? o Evening e o Morning Bell | Moeda extra - 3 regal, 3 exalted
+talk Siga a Missionary Lorandis ate a igreja, saia, quebre o campo de forca e mate todos
+note Continue ate achar o Excavated Pit e mate Torvian, Hand of the Saviour | Moeda extra
+enter G4_10 Excavation | Segue para a proxima zona
+zone G4_10 Excavation
+take? o Excavated cache | Gema de suporte bruta nivel 4
+take a Precursor Forge e derrote Benedictus, First Herald of Utopia | Cole na parede - dois blocos ligados por uma praca pequena
+note Veja os eventos de lore, fale com the Hidden One e volte de portal | Libera a Precursor Forge
+zone G4_4_1 Eye of Hinekora
+note? Quando sair das cavernas tem um bau raro atras de uma cachoeira | Gema de habilidade bruta nivel 12 (NAO CONFIRMADO)
+note Atravesse a caverna e complete cada 'test of mettle' | Bem linear - impossivel perder alguma coisa
+take o Silent Hall e aperte F na sala atras dele | Fale com Navali para a lore - +5% de mana maxima
+enter - the Hall of the Dead | Segue para a proxima zona
+zone G4_4_2 Halls of the Dead
+take as tres provas (Tawhoa, Tasalio, Ngamahu), pegue as tatuagens e entregue no totem da arena | 5 dex ou 5% res raio, 5 int ou 5% res gelo, 5 forca ou 5% res fogo - nao da para trocar (NAO CONFIRMADO)
+take o Yama's Test, derrote Yama the White e pegue a moeda de prata | Libera a Trial of Ancestors
+note Saia para a Trial of the Ancestors atras do encontro do Yama | Segue para a proxima zona
+zone G4_4_3 Trial of the Ancestors
+talk Navali e pegue a Tattoo of Hinekora | 2 pontos de passiva
+note? Terceira forma de conseguir pontos de ascendencia | Ainda nao implementado
+note Volte ao Navio e escolha um novo destino | Clique no elemento no canto superior esquerdo (bugado no momento?)
+zone G4_11_1b Ngakanu
+take? o Medicine Circle, mate os monstros e fale com Kaimana | So lore
+take e entre no Heart of the Tribe | Ache a borda depois de sair do predio grande e siga ate o Heart of Tribe
+zone G4_11_2 Heart of the Tribe
+take o Sacred Interior e derrote Tavakai | Va para o norte - direcao oposta ao checkpoint
+note Volte a cidade e fale com the Hooded One | Fim do Ato 4 - seguem os interludios
