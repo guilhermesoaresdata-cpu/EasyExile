@@ -2,174 +2,116 @@
 
 # EasyExile
 
-### See more. Navigate smarter. Stay focused on the fight.
+### A focused Path of Exile 2 utility for mapping, navigation, progression, loot, and combat awareness.
 
-**A complete Path of Exile 2 companion that brings your map, enemies, loot, progression, and essential combat information together in one clean overlay.**
-
-![Platform](https://img.shields.io/badge/platform-Windows-0078D4?style=for-the-badge)
-![Game](https://img.shields.io/badge/game-Path%20of%20Exile%202-C88A3D?style=for-the-badge)
-![Status](https://img.shields.io/badge/status-Private%20Development-6C5CE7?style=for-the-badge)
+![Windows](https://img.shields.io/badge/Windows-0078D4?style=flat-square&logo=windows&logoColor=white)
+![Path of Exile 2](https://img.shields.io/badge/Path%20of%20Exile%202-C88A3D?style=flat-square)
+![Private Development](https://img.shields.io/badge/Private%20Development-6C5CE7?style=flat-square)
 
 </div>
 
----
+EasyExile combines the information normally spread across the map, UI, item inspection, and progression tools into a configurable external overlay. It is designed to reduce friction without replacing normal gameplay.
 
-## Your adventure, made clearer
+## Features
 
-Path of Exile 2 is full of information: unexplored paths, dangerous enemies, hidden objectives, valuable drops, complex items, and long campaign routes.
+### Map and exploration
 
-EasyExile brings the most useful information into a single companion experience. It helps you understand what is happening around your character without constantly switching screens, memorizing routes, or stopping to inspect every detail.
+- Native terrain map
+- Walkable-area visualization
+- Persistent exploration state
+- Player and entity tracking
+- Transitions, landmarks, chests, NPCs, and relevant world objects
+- Configurable icons, labels, colors, and display rules
+- Game-map alignment
 
-Whether you are progressing through the campaign, exploring a large area, hunting important enemies, or deciding which item deserves your attention, EasyExile keeps the information visible and organized.
+### Navigation
 
-## What EasyExile does
+- Terrain-aware route calculation
+- Automatic route replanning
+- Path smoothing
+- Destination and progress tracking
+- World and map route display
 
-### 🗺️ Advanced map and exploration
+Navigation is visual only and does not control character movement.
 
-EasyExile transforms the game world into a clear, informative map built for exploration.
+### Campaign
 
-- Displays walkable terrain and explored areas
-- Shows your current position and movement
-- Marks enemies, NPCs, chests, exits, transitions, and important objects
-- Keeps useful landmarks visible as you explore
-- Supports the game's map view with accurate positioning and alignment
-- Uses configurable icons, labels, colors, and visibility rules
+- Current-area recognition
+- Campaign route and area graph
+- Progress journal
+- Current and next objective
+- Step and route guidance
 
-### 🧭 Intelligent navigation
+### Entities and combat
 
-Choose where you want to go and let EasyExile turn the terrain into a practical route.
+- Entity classification
+- Monster rarity and relation
+- Monster health bars
+- Threat-focused display
+- Player life, mana, energy shield, and position
+- Stable markers for moving entities
 
-- Calculates paths through available terrain
-- Updates the route when your position or destination changes
-- Removes unnecessary turns for cleaner guidance
-- Tracks your progress along the selected route
-- Provides visual direction without controlling character movement
+### Loot and items
 
-### 📖 Campaign guidance
+- Ground-item labels
+- Item value information
+- Hovered-item pricing
+- Inventory-slot highlighting
+- Modifier tier display
+- Curated support-gem recommendations
 
-Progress through the campaign with less uncertainty.
+### AutoPotion
 
-- Recognizes the current area
-- Tracks campaign progress
-- Suggests the next relevant objective
-- Shows the current and upcoming steps
-- Connects areas through a structured campaign route
-- Helps reduce backtracking and missed objectives
+- Life, mana, and energy-shield conditions
+- Configurable thresholds, keys, and cooldowns
+- Foreground-window and valid-area checks
+- Invalid-vitals protection
+- Dry-run mode
+- F8 kill switch
+- Disabled by default
 
-### 👹 Enemy awareness
+> AutoPotion is the only feature that sends keyboard input. Automation may conflict with current game rules or account policies; use it only after reviewing those rules.
 
-Understand nearby threats before they disappear into visual clutter.
+## Key characteristics
 
-- Identifies monsters and other important entities
-- Distinguishes entity types and monster rarity
-- Displays monster health information
-- Highlights dangerous or relevant targets
-- Keeps labels and markers stable while entities move
+- **External overlay** — no process injection or renderer hooking.
+- **Read-only game data** — EasyExile does not write to game memory.
+- **Build validation** — incompatible game builds are rejected instead of using stale layouts.
+- **Fail-closed behavior** — invalid data disables the affected feature rather than producing guessed results.
+- **Modular configuration** — map, navigation, campaign, loot, health bars, player display, and AutoPotion can be configured independently.
+- **Area-aware state** — routes, entities, exploration, and temporary caches are refreshed on area changes.
+- **Independent update and render loops** — data capture does not block presentation.
 
-### 💎 Loot intelligence
+## Feature status
 
-Spend less time checking everything and more time collecting what matters.
-
-- Reads visible ground-item labels
-- Displays known item values
-- Shows price information for inspected items
-- Highlights relevant inventory slots
-- Identifies modifier tiers
-- Provides curated support-gem suggestions
-
-### ❤️ Player and combat information
-
-Keep essential character information easy to understand during combat.
-
-- Tracks life, mana, and energy shield
-- Presents player position and status
-- Connects combat data with map and enemy information
-- Safely hides information when the current data cannot be validated
-
-### 🧪 AutoPotion
-
-EasyExile includes an optional automatic flask assistant.
-
-- Supports life, mana, and energy-shield conditions
-- Allows custom thresholds, keys, and cooldowns
-- Works only while Path of Exile 2 is the active window
-- Pauses outside playable areas or when character data is invalid
-- Includes a dry-run mode for testing without pressing keys
-- Includes an F8 emergency switch
-- Is disabled by default
-
-> **Important:** AutoPotion sends configured keyboard input when enabled. Automation may conflict with game rules or account policies. Review the current Path of Exile terms before using this feature.
-
-## Designed to stay out of your way
-
-EasyExile is built around a simple idea: useful information should be available when you need it and invisible when you do not.
-
-- **Clean presentation** — information is separated into focused visual layers.
-- **Customizable experience** — map, loot, player, health-bar, campaign, and debug options can be configured independently.
-- **Responsive updates** — game information and visual rendering run independently for a smoother experience.
-- **Area-aware behavior** — exploration, entities, routes, and temporary data are refreshed correctly when changing zones.
-- **Graceful failure** — unavailable information disables only the affected feature instead of displaying unreliable results.
-
-## Built with safety in mind
-
-EasyExile reads selected information from the game process but does not inject code into it and does not modify game memory.
-
-The application validates the running game version before using its memory layout. If the version is not compatible, memory-based functionality is stopped instead of attempting to use outdated information.
-
-AutoPotion is the only feature capable of sending keyboard input. It is isolated from the rest of the application, disabled by default, and protected by multiple checks.
-
-## Feature overview
-
-| Category | Included capabilities |
+| Module | Capabilities |
 | --- | --- |
-| Map | Terrain, exploration, icons, labels, landmarks, map alignment |
-| Navigation | Route calculation, smoothing, destination tracking, automatic replanning |
-| Campaign | Area recognition, objective guidance, progression history, next-step panel |
-| Enemies | Classification, rarity, health bars, threat visibility |
-| Loot | Ground labels, price information, slot highlighting, modifier tiers |
-| Build support | Skill support suggestions and item information |
-| Player | Position, life, mana, energy shield, combat status |
-| Customization | Individual settings for every major feature group |
-| Diagnostics | Specialized tools for validating supported game information |
-| Optional automation | Configurable AutoPotion with safety gates and kill switch |
+| Native Map | Terrain, exploration, entities, icons, labels, landmarks, map alignment |
+| Navigation | A* routing, smoothing, targets, route tracking, background replanning |
+| Campaign | Area graph, journal, objectives, step panel, route guidance |
+| Combat | Player vitals, entity rarity, health bars, threat information |
+| Loot | Ground labels, pricing, item slots, mod tiers, support advice |
+| AutoPotion | Optional flask input with thresholds, cooldowns, dry run, and kill switch |
+| Diagnostics | Chain, area, transition, camera, UI, tooltip, map, slot, and loot inspection |
 
-## Who EasyExile is for
+## Compatibility
 
-EasyExile is designed for players who want:
+EasyExile depends on a build-specific memory-layout contract. A Path of Exile 2 update can temporarily disable live features until a matching validated contract is available.
 
-- clearer exploration;
-- faster campaign progression;
-- better awareness during combat;
-- less time spent evaluating low-value loot;
-- useful information without an overloaded interface;
-- one companion instead of several disconnected tools.
+The application deliberately refuses incompatible layouts. Test coverage verifies internal behavior but does not make an old contract compatible with a new game build.
 
-## Current development status
+## Project status
 
-EasyExile is in private active development. Its main systems are implemented and covered by an extensive automated test suite, but Path of Exile 2 updates may require compatibility updates before live information becomes available again.
+EasyExile is under private active development. Features and layouts may change as the game client evolves.
 
-The priority is always to show trustworthy information. When EasyExile cannot validate something, it prefers to show nothing rather than show a convincing but incorrect result.
+## Technical documentation
 
----
+Developer documentation is kept separate from the product overview:
 
-## Technical information
-
-This section is intended for developers and maintainers. Players do not need to understand it to know what EasyExile offers.
-
-EasyExile is divided into three main projects:
-
-- **EasyExile.Core** reads and validates game information, manages sessions, and creates safe snapshots.
-- **EasyExile.Radar** turns those snapshots into the map, navigation, loot, campaign, combat, and settings experience.
-- **EasyExile.Diagnostics** contains focused tools used to verify compatibility and investigate game structures.
-
-The Radar never receives memory addresses or process readers. It receives completed, immutable snapshots containing only the information a feature is allowed to use.
-
-For maintainers:
-
-- [Complete module reference](docs/MODULES.md)
+- [Module reference](docs/MODULES.md)
 - [Architecture and data flow](docs/ARCHITECTURE.md)
-- [Feature implementation guide](docs/FEATURES.md)
-- [Development and testing rules](docs/DEVELOPMENT.md)
+- [Feature implementation](docs/FEATURES.md)
+- [Development and testing](docs/DEVELOPMENT.md)
 - [Offset contract workflow](CONTRACT_WORKFLOW.md)
 - [Overlay backend](src/EasyExile.Radar/Overlay/BACKEND.md)
 
@@ -177,8 +119,6 @@ For maintainers:
 
 <div align="center">
 
-**EasyExile — more clarity between you and the next objective.**
-
-Private project. Not affiliated with Grinding Gear Games.
+Private project. Not affiliated with or endorsed by Grinding Gear Games.
 
 </div>
