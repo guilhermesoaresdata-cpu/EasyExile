@@ -1,117 +1,129 @@
 # EasyExile
 
-EasyExile is a Windows-only, read-only Path of Exile 2 companion application built with .NET. It captures game state through an external process-memory reader, converts raw data into immutable snapshots, and renders an external radar and information overlay.
+EasyExile is a modular Path of Exile 2 companion written in C# for Windows. It reads selected game state, converts raw memory into immutable domain snapshots, and presents map, navigation, entity, loot, progression, and combat information through an external overlay.
 
-This is a private, experimental repository. It is not affiliated with or endorsed by Grinding Gear Games.
+This is a private experimental project and is not affiliated with or endorsed by Grinding Gear Games.
 
-## Safety model
+## Project purpose
 
-EasyExile:
-
-- opens the game process with query/read permissions only;
-- does not write to game memory;
-- does not inject code or hook the renderer;
-- keeps its only input-producing feature, AutoPotion, disabled by default;
-- stops memory-backed features when the game build does not match the compiled offset contract;
-- keeps raw memory readers inside `EasyExile.Core` and exposes snapshots to the renderer.
-
-## Features
-
-- External transparent radar overlay
-- Player, monster, NPC, chest, transition, and world-object tracking
-- Native terrain map and exploration state
-- Route planning and path smoothing over captured terrain
-- Campaign progression guidance and area graph navigation
-- Ground-item and loot-label information
-- Item/mod tier and support-gem guidance
-- Health-bar and threat presentation
-- Optional automatic flask key presses, disabled by default and protected by foreground, in-area, plausible-vitals, cooldown, dry-run, and F8 kill-switch gates
-- Minimap icons, landmarks, map UI alignment, and camera projection
-- Diagnostics for validating UI trees, labels, transitions, terrain, loot, and camera state
-
-Features depend on the running client build and the available contract fields. A missing or invalid field should disable the affected feature instead of producing a guessed result.
-
-> [!WARNING]
-> AutoPotion uses the Windows `SendInput` API when explicitly enabled. Automation may violate game rules or account policies. Review the current Path of Exile terms before enabling it; the repository owner and users are responsible for that decision.
-
-## Requirements
-
-- Windows 10 or 11, x64
-- .NET SDK 10.0 or newer
-- A legally installed Path of Exile 2 client
-- A compatible `libs/GameOffsets.dll`
-
-The projects currently compile as `net8.0-windows`; using the .NET 10 SDK keeps the repository aligned with the development environment and can build the .NET 8 targets.
-
-## Build and test
-
-```powershell
-git clone <private-repository-url>
-cd EasyExile
-dotnet restore EasyExile.slnx
-dotnet build EasyExile.slnx -c Release
-dotnet test EasyExile.slnx -c Release --no-build
-```
-
-The deterministic test suite uses fake memory and does not require the game to be running.
-
-## Run the radar
-
-Start Path of Exile 2, enter the game, and run:
-
-```powershell
-dotnet run --project src/EasyExile.Radar -c Release
-```
-
-If the client fingerprint does not match `GameOffsets.dll`, EasyExile fails closed. Update the contract through the separate Analyzer workflow; do not bypass the build gate.
-
-## Run diagnostics
-
-```powershell
-dotnet run --project tools/EasyExile.Diagnostics -- <command>
-```
-
-Diagnostics are intended for controlled live validation. They may ask the operator to move, change areas, open a panel, or hover an item during a sampling window. They observe those actions but never perform them.
-
-## Repository layout
-
-| Path | Purpose |
-| --- | --- |
-| `src/EasyExile.Core` | Process boundary, build gate, raw readers, immutable snapshots, navigation, and domain logic |
-| `src/EasyExile.Radar` | External overlay, render backend, user settings, and radar features |
-| `tests/EasyExile.Core.Tests` | Fake-memory, behavior, feature-contract, and architecture tests |
-| `tools/EasyExile.Diagnostics` | Focused live validation and research commands |
-| `tools/support-advice` | Script and generated source data used to build support recommendations |
-| `libs/GameOffsets.dll` | Build-specific compiled memory-layout contract |
-| `CONTRACT_WORKFLOW.md` | How the external Analyzer contract crosses into EasyExile |
-
-## Architecture
+The project separates memory interpretation from presentation. Low-level code is restricted to `EasyExile.Core`; visual features receive immutable snapshots and do not know addresses, offsets, process handles, or native memory layouts.
 
 ```text
-Path of Exile 2
-      |
-      | read-only process access
-      v
-EasyExile.Core raw readers
-      |
-      | immutable values
-      v
-WorldSnapshot / MapFrameSnapshot
-      |
-      v
-Radar features -> external overlay window
+Path of Exile 2 process
+          |
+          | bounded reads
+          v
+ Memory + Contract + World readers
+          |
+          v
+      GameSession
+          |
+          v
+  Immutable snapshots
+          |
+          v
+ Radar features and UI
 ```
 
-`EasyExile.Radar` references `EasyExile.Core`, but rendering code must not access raw memory abstractions or the offset contract. Reflection-based architecture tests enforce this boundary.
+## Main modules
 
-See [Architecture](docs/ARCHITECTURE.md), [Feature guide](docs/FEATURES.md), and [Development guide](docs/DEVELOPMENT.md).
+### EasyExile.Core
+
+The data and safety boundary of the application.
+
+- **Memory** — owns read-only Windows process access, typed reads, native strings, and read accounting.
+- **Contract** — provides the single named boundary to the build-specific `GameOffsets.dll` contract.
+- **Runtime** — validates the client build, manages the game session, area epochs, caches, and snapshot lifecycle.
+- **World** — interprets entities, components, terrain, map UI, loot labels, item slots, and landmarks.
+- **Camera** — reads the game camera and prepares view-projection data.
+- **Snapshots** — defines the immutable data transferred from Core to all consumers.
+- **Spatial** — contains vector types and world-to-screen projection logic.
+- **Navigation** — provides terrain-cell access, A* search, route planning, and path smoothing.
+- **Diagnostics** — defines bounded UI inspection, captions, dump options, and guided probe primitives.
+
+### EasyExile.Radar
+
+The presentation and feature layer.
+
+- **Runtime** — coordinates snapshot updates separately from rendering and constructs each render frame.
+- **Overlay** — manages the external transparent window, game-window tracking, screen capture, and native window integration.
+- **Rendering** — provides the canvas abstraction, ImGui implementation, icons, SVG paths, frame data, and visual caches.
+- **Native Map** — draws terrain, exploration, entities, labels, landmarks, and icons using map-specific projection and display rules.
+- **Navigation** — manages destinations, background replanning, route progress, and visual route guidance.
+- **Levelling** — models the campaign graph, current journal state, objectives, step selection, and progression panels.
+- **Loot** — presents ground values, hovered-item prices, mod tiers, support suggestions, and item-slot highlighting.
+- **HP Bars** — renders monster health and threat information from entity snapshots.
+- **World** — renders player/world diagnostics independently of the native map.
+- **AutoPotion** — optionally sends configured flask key presses after explicit enablement and multiple safety gates.
+- **Settings and UI** — stores feature configuration and exposes the settings window.
+- **Pricing** — resolves cached prices, mod tiers, and support recommendations.
+- **Input** — contains the isolated Win32 keyboard-input implementation used only by AutoPotion.
+
+### EasyExile.Diagnostics
+
+A separate live-research executable. It contains focused tools for inspecting the game-state chain, areas, transitions, camera, UI panels, text, tooltips, map alignment, item slots, and loot labels. Diagnostics are not part of the normal rendering pipeline.
+
+### EasyExile.Core.Tests
+
+The deterministic verification project. It uses fake memory and ordinary snapshot fixtures to test native reads, build mismatch behavior, area transitions, snapshot rules, navigation, map rendering contracts, loot, campaign guidance, AutoPotion gates, and architecture boundaries.
+
+## Feature groups
+
+| Group | Responsibility |
+| --- | --- |
+| Process safety | Read-only access, bounded reads, client fingerprint validation, and fail-closed behavior |
+| Entity model | Classification and snapshots for players, monsters, NPCs, chests, transitions, items, and objects |
+| Native map | Terrain texture, exploration history, map projection, icons, labels, and display filtering |
+| Navigation | A* pathfinding, route smoothing, destinations, replanning, and progress tracking |
+| Campaign | Area graph, route definitions, progression journal, objective selection, and step presentation |
+| Loot | Ground labels, item slots, price lookup, mod tiers, support advice, and highlighting |
+| Combat display | Player state, monster health bars, rarity, relation, and threat presentation |
+| Diagnostics | Live structural inspection and evidence gathering for supported client builds |
+| AutoPotion | Optional flask-key automation, disabled by default |
+
+## Important boundaries
+
+- `EasyExile.Core` is the only project allowed to reference `GameOffsets.dll`.
+- Radar features consume snapshots and cannot access memory readers.
+- Memory layouts are accepted only for the client fingerprint compiled with the contract.
+- Invalid or unavailable data disables the affected behavior instead of being guessed.
+- Area-scoped caches are invalidated when the area epoch changes.
+- Native containers, trees, and collections must always have explicit traversal limits.
+- Navigation provides visual guidance and never controls movement.
+
+## AutoPotion warning
+
+AutoPotion is the only module that generates input. It uses Windows `SendInput` for configured flask keys when explicitly enabled. It ships disabled and checks the foreground window, in-area state, plausible vitals, thresholds, cooldowns, dry-run mode, and the F8 kill switch.
+
+Automation may violate game rules or account policies. Anyone with access to this private repository is responsible for reviewing the current Path of Exile terms before enabling it.
 
 ## Offset contract
 
-`EasyExile.Core` is the only project that references `libs/GameOffsets.dll`. The file is a versioned producer/consumer boundary generated by the separate PoE2 Analyzer repository. Its constants are compiled into the consumer, while the runtime build gate verifies the associated client fingerprint.
+`libs/GameOffsets.dll` is produced and validated by a separate Analyzer project. Its constants and build fingerprint are compiled into `EasyExile.Core`, making them one atomic versioned unit. Replacing the DLL alone does not update an already compiled consumer.
 
-Read [CONTRACT_WORKFLOW.md](CONTRACT_WORKFLOW.md) before replacing the contract.
+The complete update design is documented in [Offset contract workflow](CONTRACT_WORKFLOW.md).
 
-## Private repository notes
+## Detailed documentation
 
-No public open-source license is required while access remains private. All recipients still need explicit permission from the repository owner to copy or redistribute the code. Before changing the repository to public, select a license, review screenshots/data artifacts, and complete a separate public-release audit.
+- [Complete module reference](docs/MODULES.md)
+- [Architecture and data flow](docs/ARCHITECTURE.md)
+- [Feature behavior](docs/FEATURES.md)
+- [Development and testing rules](docs/DEVELOPMENT.md)
+- [Overlay backend](src/EasyExile.Radar/Overlay/BACKEND.md)
+
+## Repository structure
+
+| Path | Contents |
+| --- | --- |
+| `src/EasyExile.Core` | Memory boundary, game-domain readers, snapshots, and navigation algorithms |
+| `src/EasyExile.Radar` | Overlay, rendering, settings, and feature implementations |
+| `tools/EasyExile.Diagnostics` | Live inspection and validation tools |
+| `tools/support-advice` | Generator and curated support recommendation data |
+| `tools/devtree` | Utility for comparing diagnostic tree captures |
+| `tests/EasyExile.Core.Tests` | Deterministic unit and architecture tests |
+| `libs/GameOffsets.dll` | Build-specific offset contract |
+| `docs` | Architecture, modules, features, and development documentation |
+
+## Repository status
+
+The codebase is experimental and tied to specific Path of Exile 2 builds. Passing deterministic tests proves internal behavior; it does not prove that a historical memory layout remains valid after a client update.
