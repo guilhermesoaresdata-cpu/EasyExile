@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using EasyExile.Core.World;
 
 namespace EasyExile.Core.Snapshots;
@@ -27,6 +27,13 @@ internal sealed class CaptureCaches
     /// <summary>
     /// A drop's identity. Fixed the moment it lands, so it is read once.
     /// </summary>
+    /// <remarks>
+    /// Successes only. A drop's wrapper is populated a beat after its entity
+    /// appears, so the capture that arrives during that beat reads nothing —
+    /// and remembering that nothing left the item nameless for as long as it
+    /// lay on the floor. The nullable value is kept for the reader's benefit
+    /// rather than to store a miss.
+    /// </remarks>
     public Dictionary<nint, ItemSnapshot?> Items { get; } = new();
 
     /// <summary>Metadata paths and component tables, per entity type.</summary>

@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using EasyExile.Core.Contract;
 using EasyExile.Core.Snapshots;
 using EasyExile.Core.Spatial;
@@ -207,6 +207,84 @@ public class SnapshotTests
         var warm = mem.Reads;
 
         Assert.True(warm < cold, $"the second capture read {warm}, the first {cold} - nothing was remembered");
+    }
+
+    [Fact]
+    public void A_drop_that_was_not_readable_yet_is_asked_again()
+    {
+        // The bug this guards: a unique from a ritual lay on the floor with no
+        // name and no price for as long as it lay there, while the same item
+        // named itself the instant it was picked up. The stash reads an item
+        // through a different door, so only the ground path was affected.
+        //
+        // The cause was one line of caching. A drop's entity appears the moment
+        // it lands and its wrapper is filled in a beat later; the capture that
+        // arrived during that beat read nothing, and the nothing was cached
+        // against the address for the rest of the area.
+        using var mem = WorldFixture.Build(monsters: 2, drop: true);
+
+        var caches = new CaptureCaches();
+        var epoch = new AreaEpoch();
+
+        // Twice before the interesting part. The FIRST capture of an area
+        // clears the caches partway through - the terrain read notices the area
+        // is new - so it is the second that gets to remember anything, and the
+        // bug only bites on a floor that has already settled. Which is exactly
+        // where it was found: a ritual dropping into a room already walked.
+        SnapshotCapture.Capture(mem, WorldFixture.ModuleBase, epoch, CaptureOptions.Default, null, caches);
+
+        var second = SnapshotCapture.Capture(
+            mem, WorldFixture.ModuleBase, epoch, CaptureOptions.Default, null, caches).Snapshot!;
+
+        Assert.DoesNotContain(second.Entities, e => e.Item is not null);
+
+        WorldFixture.FinishDrop(mem);
+
+        var third = SnapshotCapture.Capture(
+            mem, WorldFixture.ModuleBase, epoch, CaptureOptions.Default, null, caches).Snapshot!;
+
+        var drop = Assert.Single(third.Entities.Where(e => e.Item is not null));
+
+        Assert.Equal(WorldFixture.DropBase, drop.Item!.BaseName);
+        Assert.Equal(WorldFixture.DropArt, drop.Item.Art);
+        Assert.True(drop.Item.IsUnidentifiedUnique);
+    }
+
+    [Fact]
+    public void A_drop_that_was_read_is_not_read_twice()
+    {
+        // The other half: not remembering a failure must not stop us
+        // remembering a success. A floor covered in loot re-read every capture
+        // is the cost the budget exists to avoid.
+        using var mem = WorldFixture.Build(monsters: 2, drop: true);
+
+        var caches = new CaptureCaches();
+        var epoch = new AreaEpoch();
+
+        WorldFixture.FinishDrop(mem);
+
+        // Twice: the first capture of an area clears the caches partway through,
+        // when the terrain read notices the area is new. The second is the one
+        // that gets to keep what it learned.
+        SnapshotCapture.Capture(mem, WorldFixture.ModuleBase, epoch, CaptureOptions.Default, null, caches);
+        SnapshotCapture.Capture(mem, WorldFixture.ModuleBase, epoch, CaptureOptions.Default, null, caches);
+
+        Assert.Single(caches.Items);
+
+        mem.Reads = 0;
+        SnapshotCapture.Capture(mem, WorldFixture.ModuleBase, epoch, CaptureOptions.Default, null, caches);
+        var warm = mem.Reads;
+
+        // Against the same pass with the item forgotten. An absolute number
+        // would be measuring the whole capture, most of which is the player,
+        // the camera and two monsters; the difference is the item.
+        caches.Items.Clear();
+
+        mem.Reads = 0;
+        SnapshotCapture.Capture(mem, WorldFixture.ModuleBase, epoch, CaptureOptions.Default, null, caches);
+        var cold = mem.Reads;
+
+        Assert.True(warm < cold, $"quente {warm}, frio {cold} - o item foi relido mesmo em cache");
     }
 
     [Fact]

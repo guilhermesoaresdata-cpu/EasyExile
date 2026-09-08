@@ -264,7 +264,22 @@ internal static class SnapshotCapture
     private static float UiScale(CameraSnapshot? camera) =>
         camera is { Height: > 0 } ? camera.Height / 1600f : 1f;
 
-    /// <summary>An item's identity never changes once dropped, so it is read once.</summary>
+    /// <summary>
+    /// An item's identity never changes once dropped, so it is read once.
+    /// </summary>
+    /// <remarks>
+    /// Once it can be read at all, which is not the same instant it exists. A
+    /// drop's entity appears the moment it lands and its wrapper is populated a
+    /// beat later, so the first capture to see a fresh pile reads nothing from
+    /// some of it — and caching that nothing made the miss permanent. A unique
+    /// from a ritual stayed nameless and priceless on the floor for as long as
+    /// it lay there, while the same item named itself immediately once picked
+    /// up, because the stash reads it through a different door.
+    ///
+    /// So a failure is not remembered, exactly as the mod reader already does
+    /// it. The cost of retrying is bounded by the same budget that bounds the
+    /// first attempt, and only entities carrying the drop component ever ask.
+    /// </remarks>
     private static ItemSnapshot? Item(
         CaptureCaches caches, GameEntity entity, nint address, ref int budget)
     {
@@ -276,7 +291,9 @@ internal static class SnapshotCapture
 
         var item = entity.Item();
 
-        caches.Items[address] = item;
+        // Only a success is worth remembering. A null here means "not yet",
+        // and the next capture is where it becomes "not ever" or a name.
+        if (item is not null) caches.Items[address] = item;
 
         return item;
     }

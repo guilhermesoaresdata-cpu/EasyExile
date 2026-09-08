@@ -1,4 +1,4 @@
-using EasyExile.Core.Contract;
+﻿using EasyExile.Core.Contract;
 
 namespace EasyExile.Core.Tests;
 
@@ -50,7 +50,7 @@ internal static class WorldFixture
     /// how a real area behaves, and it is what let scenery push the monsters out
     /// of the snapshot.
     /// </param>
-    public static FakeMemory Build(int monsters = 3, int scenery = 0)
+    public static FakeMemory Build(int monsters = 3, int scenery = 0, bool drop = false)
     {
         var mem = new FakeMemory { ModuleBase = ModuleBase };
 
@@ -67,7 +67,7 @@ internal static class WorldFixture
         mem.WritePointer(InGameState + GameLayout.Roots.Camera, CameraAddress);
 
         WriteCamera(mem, CameraAddress, 1920, 1080);
-        WriteArea(mem, FirstArea, FirstPlayer, FirstContainer, monsters, scenery);
+        WriteArea(mem, FirstArea, FirstPlayer, FirstContainer, monsters, scenery, drop);
 
         return mem;
     }
@@ -92,13 +92,14 @@ internal static class WorldFixture
     }
 
     private static void WriteArea(
-        FakeMemory mem, nint area, nint player, nint container, int monsters, int scenery = 0)
+        FakeMemory mem, nint area, nint player, nint container, int monsters, int scenery = 0,
+        bool drop = false)
     {
         mem.Zero(area, GameLayout.World.RequiredReadableSpan + 0x100);
         mem.WritePointer(area + GameLayout.World.LocalPlayer, player);
 
         WritePlayer(mem, player);
-        WriteContainer(mem, area, container, monsters, scenery);
+        WriteContainer(mem, area, container, monsters, scenery, drop);
     }
 
     /// <summary>An entity with Life, Render and Player components.</summary>
@@ -128,7 +129,8 @@ internal static class WorldFixture
         mem.WriteBytes(identity + GameLayout.Identity.Level, (byte)PlayerLevel);
     }
 
-    private static void WriteContainer(FakeMemory mem, nint area, nint head, int monsters, int scenery = 0)
+    private static void WriteContainer(
+        FakeMemory mem, nint area, nint head, int monsters, int scenery = 0, bool drop = false)
     {
         mem.WritePointer(area + GameLayout.World.AwakeEntities, head);
         mem.WritePointer(area + GameLayout.World.SleepingEntities, 0);
@@ -137,7 +139,9 @@ internal static class WorldFixture
 
         var previous = head;
 
-        for (int i = 0; i < monsters + scenery; i++)
+        var total = monsters + scenery + (drop ? 1 : 0);
+
+        for (int i = 0; i < total; i++)
         {
             var node = head + 0x1000 + (i * 0x1000);
             var monster = head + 0x100000 + (i * 0x40000);
@@ -145,15 +149,28 @@ internal static class WorldFixture
 
             mem.Zero(node, 0x48);
 
-            // Scenery first, so it competes for the budget the way it does live.
-            var metadata = i < scenery
-                ? "Metadata/Terrain/Test/Rock" + i
-                : "Metadata/Monsters/Test/Monster" + (i - scenery);
+            // The drop goes last, so adding one does not renumber the monsters
+            // a test may already be asserting about.
+            var isDrop = drop && i == total - 1;
 
-            WriteEntity(mem, monster, metadata, new[]
+            // Scenery first, so it competes for the budget the way it does live.
+            var metadata = isDrop
+                ? "Metadata/MiscellaneousObjects/WorldItem"
+                : i < scenery
+                    ? "Metadata/Terrain/Test/Rock" + i
+                    : "Metadata/Monsters/Test/Monster" + (i - scenery);
+
+            if (isDrop)
             {
-                (GameLayout.Names.Render, render),
-            });
+                WriteDrop(mem, monster, render);
+            }
+            else
+            {
+                WriteEntity(mem, monster, metadata, new[]
+                {
+                    (GameLayout.Names.Render, render),
+                });
+            }
 
             mem.Zero(render, GameLayout.Spatial.WorldPosition + 0x40);
             WriteWorldPosition(mem, render, 4000f + (i * 50), 2600f + (i * 50), -350f);
@@ -183,6 +200,75 @@ internal static class WorldFixture
         mem.WriteFloat(render + GameLayout.Spatial.WorldPosition + 4, y);
         mem.WriteFloat(render + GameLayout.Spatial.WorldPosition + 8, z);
     }
+
+    // ---- a drop on the floor ------------------------------------------------
+
+    /// <summary>The address of the wrapper's inner pointer, so a test can fill it in.</summary>
+    private static nint _dropInner;
+
+    public const string DropArt = "TheDancingMirage";
+    public const string DropBase = "Wayfarer Jacket";
+
+    /// <summary>
+    /// One unidentified unique on the floor, with its identity NOT yet readable.
+    /// </summary>
+    /// <remarks>
+    /// A drop is two entities: the WorldItem wrapper that lives in the entity
+    /// list, and the real item it points at. The wrapper starts with a null
+    /// inner pointer, which is what the client looks like for the beat between
+    /// an item landing and being filled in - the state that used to be cached
+    /// as "this drop has no identity" and never asked about again.
+    /// </remarks>
+    private static void WriteDrop(FakeMemory mem, nint entity, nint render)
+    {
+        var wrapper = entity + 0x8000;
+        var item = entity + 0x20000;
+
+        WriteEntity(mem, entity, "Metadata/MiscellaneousObjects/WorldItem", new[]
+        {
+            (GameLayout.Names.Render, render),
+            (GameLayout.Item.WorldItemComponent, wrapper),
+        });
+
+        mem.Zero(wrapper, 0x40);
+        mem.WritePointer(wrapper + GameLayout.Item.Inner, 0);
+
+        _dropInner = wrapper + GameLayout.Item.Inner;
+
+        var art = item + 0x1000;
+        var basic = item + 0x2000;
+        var mods = item + 0x3000;
+        var row = item + 0x4000;
+
+        WriteEntity(mem, item, "Metadata/Items/Armours/BodyArmours/Body", new[]
+        {
+            (GameLayout.Item.RenderComponent, art),
+            (GameLayout.Item.BaseComponent, basic),
+            (GameLayout.Item.ModsComponent, mods),
+        });
+
+        mem.Zero(art, 0x40);
+        mem.Zero(basic, 0x40);
+        mem.Zero(mods, 0x80);
+        mem.Zero(row, 0x200);
+
+        mem.WriteWideString(art + GameLayout.Item.ArtPath, art + 0x100,
+            "Art/2DItems/Armours/BodyArmours/" + DropArt + ".dds");
+
+        mem.WritePointer(basic + GameLayout.Item.NameRow, row);
+        mem.WriteWideString(row + GameLayout.Item.RowDisplayName, row + 0x100, DropBase);
+
+        // Unique and unidentified: the shape the bug report came in as.
+        mem.WriteInt32(mods + GameLayout.Item.Rarity, 3);
+        mem.WriteInt32(mods + GameLayout.Item.Identified, 0);
+
+        _dropItem = item;
+    }
+
+    private static nint _dropItem;
+
+    /// <summary>Fills the drop in, the way the client does a beat after it lands.</summary>
+    public static void FinishDrop(FakeMemory mem) => mem.WritePointer(_dropInner, _dropItem);
 
     private static void WriteEntity(
         FakeMemory mem, nint entity, string metadata, (string Name, nint Address)[] components)
