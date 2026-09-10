@@ -1,4 +1,4 @@
-# Complete module reference
+﻿# Complete module reference
 
 This document explains the responsibility and collaboration boundary of every EasyExile module.
 
@@ -193,6 +193,8 @@ Navigation returns data for visual guidance only.
 | `ModTierFeature` | Converts item modifier data into tier annotations. |
 | `SkillSupportFeature` | Presents curated support recommendations for a skill. |
 | `SlotHighlightFeature` | Highlights relevant visible item slots based on feature rules. |
+| `BuildTagFeature`, `BuildTags` | Marks items carrying modifiers that help the chosen build archetype. |
+| `ResistanceFeature` | Marks items that fill a resistance gap, or that carry the elements the player chose. |
 
 ### Combat and world features
 
@@ -229,6 +231,9 @@ Navigation returns data for visual guidance only.
 | `PlayerSettings` | Player marker/display configuration. |
 | `NativeMapSettings` | Terrain, exploration, icon, label, and native-map presentation options. |
 | `LootSettings`, `ChipCorner`, `SkillSupportAnchor` | Loot visibility and placement configuration. |
+| `BuildTag` | Which kinds of modifier earn a mark on the item that has them. |
+| `ResistanceMode`, `ResistanceWatch` | Whether the tool or the player decides which resistances are marked, and which. |
+| `Language`, `Text` | The interface language, and the table every drawn phrase passes through. |
 | `HpBarSettings` | Monster health-bar and threat display configuration. |
 | `LevellingSettings` | Campaign guidance preferences. |
 | `DebugEntitySettings` | Development-only entity visibility choices. |

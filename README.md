@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
 
 # EasyExile
 
@@ -37,10 +37,12 @@ Navigation is visual only and does not control character movement.
 ### Campaign
 
 - Current-area recognition
-- Campaign route and area graph
+- Campaign route and area graph across 65 zones and 190 steps
 - Progress journal
 - Current and next objective
 - Step and route guidance
+- The whole guide in either language, keyed by the client's internal area codes
+  so it does not depend on the client's own language
 
 ### Entities and combat
 
@@ -56,9 +58,22 @@ Navigation is visual only and does not control character movement.
 - Ground-item labels
 - Item value information
 - Hovered-item pricing
+- Uniques with no known price are marked rather than hidden
 - Inventory-slot highlighting
-- Modifier tier display
-- Curated support-gem recommendations
+- Modifier tier badges on the item's own tooltip line, by prefix and suffix
+- Build-archetype marks — pick what you are building and items carrying mods
+  that help it get a corner mark
+- Resistance marks — either what your character is still short of, against a
+  target you choose, or the elements you pick yourself
+- Curated support-gem recommendations for 381 skills
+
+### Language
+
+- The entire interface in Portuguese (BR) or English, switched at any time
+- Every phrase the overlay can draw, including the campaign guide and the text
+  drawn over the game
+- Two guards in the test suite: one fails on a phrase with no translation, the
+  other on a drawn string that never reached the translator at all
 
 ### AutoPotion
 
@@ -90,9 +105,10 @@ Navigation is visual only and does not control character movement.
 | Navigation | A* routing, smoothing, targets, route tracking, background replanning |
 | Campaign | Area graph, journal, objectives, step panel, route guidance |
 | Combat | Player vitals, entity rarity, health bars, threat information |
-| Loot | Ground labels, pricing, item slots, mod tiers, support advice |
+| Loot | Ground labels, pricing, unpriced uniques, item slots, mod tier badges, build marks, resistance marks, support advice |
+| Language | Full Portuguese (BR) and English interface, campaign guide included, guarded by tests |
 | AutoPotion | Optional flask input with thresholds, cooldowns, dry run, and kill switch |
-| Diagnostics | Chain, area, transition, camera, UI, tooltip, map, slot, and loot inspection |
+| Diagnostics | Chain, area, transition, camera, UI, tooltip, map, slot, and loot inspection; aimed UI-tree dumps with element paths, read recipes, raw field values, value search, and offline diff |
 
 ## Compatibility
 
