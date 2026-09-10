@@ -461,6 +461,9 @@ using (session)
         return EasyExile.Diagnostics.TextHunt.Run(session, needle);
     }
 
+    if (args.Contains("--stats"))
+        return EasyExile.Diagnostics.StatDump.Run(session);
+
     if (args.Contains("--ui-bench"))
     {
         var passes = 20;
