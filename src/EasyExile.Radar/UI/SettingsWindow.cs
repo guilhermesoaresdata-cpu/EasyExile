@@ -159,7 +159,7 @@ internal sealed class SettingsWindow
         {
             if (ImGui.BeginTabItem(T("Geral")))
             {
-                DrawGeneral();
+                DrawGeneral(loop);
                 ImGui.EndTabItem();
             }
 
@@ -237,8 +237,17 @@ internal sealed class SettingsWindow
         Unstyle();
     }
 
-    private void DrawGeneral()
+    private void DrawGeneral(RadarRenderLoop loop)
     {
+        // First thing in the tab, not last: a borderless overlay hidden from
+        // the taskbar has no other way out, and the one place a player would
+        // look for "how do I close this" is the top of the first tab.
+        if (ImGui.Button(T("Fechar o EasyExile")))
+            loop.RequestExit();
+
+        ImGui.TextDisabled(T("Fecha o overlay. O jogo continua rodando normalmente."));
+        ImGui.Separator();
+
         var idiom = (int)_settings.General.Language;
 
         if (ImGui.Combo(T("Idioma"), ref idiom, LanguageNames, LanguageNames.Length))

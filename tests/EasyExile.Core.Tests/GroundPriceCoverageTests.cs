@@ -152,6 +152,43 @@ public class GroundPriceCoverageTests : IDisposable
         Assert.Empty(canvas.Texts);
     }
 
+    // ---- a unique priced below the floor -------------------------------------
+
+    [Fact]
+    public void A_unique_priced_below_the_floor_is_still_shown()
+    {
+        // Live: The Dancing Mirage (base "Wayfarer Jacket") priced at 0,92 ex,
+        // under the default 5 ex unique floor. The floor exists to hide common
+        // currency and rares nobody would stop for; a unique's identity is
+        // worth having regardless of what the market says it is worth today,
+        // and the floor check used to delete the whole tag - name included -
+        // before the price was even looked at.
+        var canvas = Draw(
+            new LootSettings(),
+            Unique("TheDancingMirage", "Wayfarer Jacket"),
+            Tag("Wayfarer Jacket"),
+            cheapUnique: true);
+
+        Assert.Contains(canvas.ColouredTexts, w =>
+            w.Text.Contains("Dancing Mirage", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void A_rare_below_the_floor_still_stays_quiet()
+    {
+        // The exception is for uniques specifically, not a general amnesty for
+        // anything with a known price. Most of the floor while levelling is
+        // exactly this - cheap rares nobody would stop for - and it must stay
+        // filtered.
+        var canvas = Draw(
+            new LootSettings(),
+            Drop("TheDancingMirage", "Wayfarer Jacket"),
+            Tag("Wayfarer Jacket"),
+            cheapUnique: true);
+
+        Assert.Empty(canvas.Texts);
+    }
+
     private static EntitySnapshot Unique(string art, string baseName) =>
         RadarFixture.Entity(1, new Vector3(0, 0, 0), "Metadata/MiscellaneousObjects/WorldItem") with
         {
@@ -170,9 +207,10 @@ public class GroundPriceCoverageTests : IDisposable
         };
 
     private RecordingCanvas Draw(
-        LootSettings options, EntitySnapshot drop, ImmutableArray<LootLabelSnapshot> tags)
+        LootSettings options, EntitySnapshot drop, ImmutableArray<LootLabelSnapshot> tags,
+        bool cheapUnique = false)
     {
-        Seed();
+        Seed(cheapUnique);
 
         var prices = new PriceBook(_cache);
 
@@ -197,7 +235,12 @@ public class GroundPriceCoverageTests : IDisposable
     }
 
     /// <summary>One priced item, written in the shape the book caches.</summary>
-    private void Seed()
+    /// <remarks>
+    /// <paramref name="cheapUnique"/> adds The Dancing Mirage at 0,92 ex under
+    /// its art key - a real unique, priced, and under the default 5 ex floor:
+    /// the exact shape of the live drop this covers.
+    /// </remarks>
+    private void Seed(bool cheapUnique = false)
     {
         var row = new
         {
@@ -207,13 +250,26 @@ public class GroundPriceCoverageTests : IDisposable
             Category = "Currency",
         };
 
+        var byArt = new Dictionary<string, object> { ["ExaltedOrbArt"] = row };
+
+        if (cheapUnique)
+        {
+            byArt["TheDancingMirage"] = new
+            {
+                Name = "The Dancing Mirage",
+                Exalted = 0.92,
+                Quantity = 40,
+                Category = "UniqueArmours",
+            };
+        }
+
         File.WriteAllText(_cache, JsonSerializer.Serialize(new
         {
             League = "Test",
             FetchedUtc = DateTime.UtcNow,
             ExPerDivine = 100.0,
             ExPerChaos = 5.0,
-            ByArt = new Dictionary<string, object> { ["ExaltedOrbArt"] = row },
+            ByArt = byArt,
             ByName = new Dictionary<string, object> { ["Exalted Orb"] = row },
         }));
     }

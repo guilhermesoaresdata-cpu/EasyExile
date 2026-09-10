@@ -147,7 +147,15 @@ public sealed class LootValuesFeature : IRadarFeature
                 continue;
             }
 
-            if (value.Exalted < options.MinimumFor(value.Category, unique))
+            // The floor hides common currency and rares nobody would stop for.
+            // A unique is not that: knowing WHICH one dropped is worth having
+            // regardless of what the market happens to say it is worth today -
+            // the same reasoning that already made an unpriced unique worth a
+            // mark rather than silence. "Wayfarer Jacket" was The Dancing
+            // Mirage at 0,92 ex, under the default 5 ex floor, and the floor
+            // check below used to delete the whole tag before its name was
+            // ever looked at.
+            if (!unique && value.Exalted < options.MinimumFor(value.Category, unique))
             {
                 _stats.LootTagsBelowFloor++;
                 continue;
@@ -340,7 +348,9 @@ public sealed class LootValuesFeature : IRadarFeature
 
             if (Price(item) is not { } price) continue;
 
-            if (price.Exalted < options.MinimumFor(price.Category, item.IsUnique)) continue;
+            // Same exception as the tag route above: a unique's identity is
+            // worth surfacing on its own, floor or no floor.
+            if (!item.IsUnique && price.Exalted < options.MinimumFor(price.Category, item.IsUnique)) continue;
             if (!options.ShowsCategory(price.Category)) continue;
 
             if (entity.WorldPosition is not { } world) continue;

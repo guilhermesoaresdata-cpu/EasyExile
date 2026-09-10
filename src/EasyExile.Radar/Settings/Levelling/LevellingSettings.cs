@@ -7,7 +7,12 @@ namespace EasyExile.Radar.Settings.Levelling;
 /// </summary>
 public sealed record LevellingSettings
 {
-    public bool Enabled { get; init; } = true;
+    /// <summary>
+    /// Off by default. A fresh install has not chosen a build to level, and the
+    /// guide is still marked BETA in its own tab - opting in is a decision the
+    /// player makes, not one a new install makes for them.
+    /// </summary>
+    public bool Enabled { get; init; }
 
     /// <summary>
     /// Pick the exit to the next step automatically and route to it.

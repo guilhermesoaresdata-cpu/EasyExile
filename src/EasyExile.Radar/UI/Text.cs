@@ -459,5 +459,7 @@ public static class Text
         { "unique - sem preco", "unique - no price" },
         { "Marcar unique no chao mesmo sem preco", "Mark ground uniques even with no price" },
         { "Sem preco nao quer dizer sem valor - so que a lista nao conhece ele.", "No price does not mean no value - only that the list has not heard of it." },
+        { "Fechar o EasyExile", "Close EasyExile" },
+        { "Fecha o overlay. O jogo continua rodando normalmente.", "Closes the overlay. The game keeps running normally." },
     };
 }

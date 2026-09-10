@@ -136,12 +136,14 @@ public sealed record GeneralSettings
     /// The language the interface speaks.
     /// </summary>
     /// <remarks>
-    /// Portuguese by default because that is what it was written in and what
-    /// its author reads. English exists because the game is in English and so
-    /// is everything written about it, so the two sit side by side in one
-    /// person's head and the interface should be able to match either.
+    /// Written in Portuguese first because that is what its author reads, and
+    /// English exists because the game is in English and so is everything
+    /// written about it. English is the default a fresh install starts as,
+    /// because the overlay now ships to a wider audience than one language
+    /// serves. An existing <c>settings.txt</c> keeps whatever the player
+    /// already had - this only changes what a new install starts as.
     /// </remarks>
-    public Language Language { get; init; } = Language.PtBr;
+    public Language Language { get; init; } = Language.English;
 }
 
 /// <summary>The handful of virtual-key codes the settings need to name.</summary>

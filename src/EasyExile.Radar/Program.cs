@@ -1,4 +1,4 @@
-using EasyExile.Radar.Overlay;
+﻿using EasyExile.Radar.Overlay;
 using EasyExile.Radar.Runtime;
 using EasyExile.Radar.Settings;
 
@@ -11,6 +11,14 @@ var settings = new RadarSettings();
 
 // Whatever was chosen last time, applied over the defaults.
 SettingsStore.Load(settings);
+
+// Before anything is said, not just before anything is drawn. The panel sets
+// this too, but a start-up refusal - the client is not running, the build is
+// wrong - is reported here, on the very first run, before the panel has ever
+// had a frame to do it in. Left unset, that message came out in whatever
+// Text.Current defaults to, regardless of the language the player chose last
+// time.
+EasyExile.Radar.UI.Text.Current = settings.General.Language;
 
 if (!RadarApplication.TryStart(settings, out var started, out var failure, out var detail) || started is null)
 {

@@ -37,6 +37,7 @@ public sealed class RadarRenderLoop
     private bool _hotkeyWasDown;
     private bool _screenshotWasDown;
     private nint _windowHandle;
+    private OverlayWindow? _window;
     private DateTimeOffset _shotAt = DateTimeOffset.MinValue;
     private string? _shotName;
 
@@ -101,6 +102,11 @@ public sealed class RadarRenderLoop
 
     internal void DrawFrame(OverlayWindow window)
     {
+        // Kept for RequestExit: the panel's own Exit button reaches this the
+        // same way OverlayHost already closes the window on disconnect - there
+        // is no other channel out of a borderless, taskbar-hidden overlay.
+        _window = window;
+
         _stats.BeginFrame();
 
         GameWindow = _tracker.Poll();
@@ -435,6 +441,14 @@ public sealed class RadarRenderLoop
 
     /// <summary>UI units to client pixels, for an aimed dump.</summary>
     public float UiScale => Placement.Bounds.Height > 0 ? Placement.Bounds.Height / 1600f : 1f;
+
+    /// <summary>
+    /// The only way out of a window with no border, no taskbar entry, and no
+    /// system menu. Closing it is what makes <c>RunAsync</c> return, which is
+    /// what lets Program.cs save settings and exit cleanly - the same path
+    /// OverlayHost already uses when the game itself goes away.
+    /// </summary>
+    public void RequestExit() => _window?.Close();
 
     private void UpdateInputMode(OverlayWindow window)
     {

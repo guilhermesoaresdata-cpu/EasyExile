@@ -1,9 +1,11 @@
-using EasyExile.Core.Snapshots;
+﻿using EasyExile.Core.Snapshots;
 using EasyExile.Core.Spatial;
 using EasyExile.Radar.Features.NativeMap;
 using EasyExile.Radar.Settings;
 using EasyExile.Radar.Settings.NativeMap;
 using EasyExile.Radar.Settings.Player;
+using EasyExile.Radar.Settings.General;
+using EasyExile.Radar.Settings.Levelling;
 
 namespace EasyExile.Core.Tests;
 
@@ -12,6 +14,27 @@ namespace EasyExile.Core.Tests;
 /// </summary>
 public class SettingsAndAreaTests
 {
+    // ---- a fresh install's defaults ------------------------------------------
+
+    [Fact]
+    public void A_fresh_install_speaks_English()
+    {
+        // Portuguese is what this was written in, and English is what a wider
+        // audience than one language reads. An install that already has a
+        // settings.txt keeps whatever it had - this is only what a NEW one
+        // starts as.
+        Assert.Equal(Language.English, new GeneralSettings().Language);
+    }
+
+    [Fact]
+    public void A_fresh_install_starts_with_levelling_off()
+    {
+        // The guide has not been told what to build yet, and it still says BETA
+        // in its own tab. Opting in is the player's decision, not the default
+        // a new install makes for them.
+        Assert.False(new LevellingSettings().Enabled);
+    }
+
     // ---- the area bug -----------------------------------------------------------
 
     [Fact]

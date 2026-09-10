@@ -253,6 +253,52 @@ public class TranslationTests
         }
     }
 
+    [Fact]
+    public void The_language_is_applied_before_the_first_thing_the_program_can_say()
+    {
+        // The bug this guards: a start-up refusal ("PathOfExile is not
+        // running", a build mismatch) is reported in Program.cs, before the
+        // panel has ever drawn a frame. Text.Current used to move only inside
+        // SettingsWindow.Draw, so that very first message always came out in
+        // whatever it defaults to - Portuguese - no matter which language the
+        // player had chosen last time.
+        //
+        // Program.cs is top-level statements with nothing to call from a test,
+        // so this reads the source the same way the other guard above does:
+        // the language must be set from the loaded settings before TryStart is
+        // called, because TryStart is what can fail and speak.
+        var program = ContractIsolationTests
+            .SourceFiles(Path.Combine("src", "EasyExile.Radar"))
+            .Single(f => f.EndsWith("Program.cs", StringComparison.OrdinalIgnoreCase));
+
+        var text = File.ReadAllText(program);
+
+        var setLanguage = text.IndexOf("Text.Current = settings.General.Language", StringComparison.Ordinal);
+        var tryStart = text.IndexOf("RadarApplication.TryStart(", StringComparison.Ordinal);
+
+        Assert.True(setLanguage >= 0, "Program.cs nao aplica mais o idioma salvo");
+        Assert.True(tryStart >= 0, "Program.cs nao chama mais TryStart - o teste esta desatualizado");
+        Assert.True(setLanguage < tryStart, "o idioma e aplicado DEPOIS de TryStart poder falhar e falar");
+    }
+
+    [Fact]
+    public void The_panel_has_a_way_to_close_the_overlay()
+    {
+        // A borderless window hidden from the taskbar and from alt-tab has no
+        // system menu and no close button of the OS's own. Before this, the
+        // only way out was Task Manager - which is not a thing a player should
+        // have to be told to use. The button lives at the very top of the
+        // first tab, because that is the one place a player looking for "how
+        // do I close this" would think to look.
+        var panel = ContractIsolationTests
+            .SourceFiles(Path.Combine("src", "EasyExile.Radar"))
+            .Single(f => f.EndsWith("SettingsWindow.cs", StringComparison.OrdinalIgnoreCase));
+
+        var text = File.ReadAllText(panel);
+
+        Assert.Contains("loop.RequestExit()", text, StringComparison.Ordinal);
+    }
+
     private static IEnumerable<string> Phrases()
     {
         // Every file in the overlay, not just the panel: the levelling guide
