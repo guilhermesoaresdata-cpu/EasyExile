@@ -12,6 +12,53 @@
 
 EasyExile combines the information normally spread across the map, UI, item inspection, and progression tools into a configurable external overlay. It is designed to reduce friction without replacing normal gameplay.
 
+## Screenshots
+
+<table>
+<tr>
+<td width="34%">
+
+**Map, entities, and the campaign guide**
+
+Terrain, walkable area, tracked entities, and the step-by-step campaign guide, all drawn over the game's own map.
+
+</td>
+<td>
+
+![Native map, entity tracking, and the campaign guide panel](docs/images/overlay-map-and-campaign.jpg)
+
+</td>
+</tr>
+<tr>
+<td>
+
+**Ground loot, priced and named**
+
+A cheap unique ("The Dancing Mirage", 0.92 ex) still gets its real name and price — the value floor that hides common currency never applies to a unique's identity.
+
+</td>
+<td>
+
+![Ground items with revealed unique names and price chips](docs/images/ground-loot-pricing.jpg)
+
+</td>
+</tr>
+<tr>
+<td>
+
+**Item marks, at a glance**
+
+Two independent marks stack in the corners: a mod-tier badge (`S3` — best suffix roll, tier 3) and which resistance an item fills (`+F` fire, `+C` cold, `+X` chaos) or build archetype it helps. Set your build and target once; every item you look at after that is pre-sorted.
+
+</td>
+<td>
+
+![Inventory items marked with resistance and build-archetype corner tags](docs/images/inventory-build-marks.jpg)
+
+</td>
+</tr>
+</table>
+
 ## Features
 
 ### Map and exploration
