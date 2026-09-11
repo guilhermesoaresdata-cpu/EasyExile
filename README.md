@@ -6,7 +6,9 @@
 
 ![Windows](https://img.shields.io/badge/Windows-0078D4?style=flat-square&logo=windows&logoColor=white)
 ![Path of Exile 2](https://img.shields.io/badge/Path%20of%20Exile%202-C88A3D?style=flat-square)
-![Private Development](https://img.shields.io/badge/Private%20Development-6C5CE7?style=flat-square)
+![Latest release](https://img.shields.io/github/v/release/guilhermesoaresdata-cpu/EasyExile?style=flat-square&label=release)
+
+**[⬇ Download the latest release](https://github.com/guilhermesoaresdata-cpu/EasyExile/releases/latest)** — unzip and run, no install needed.
 
 </div>
 
@@ -182,6 +184,6 @@ Developer documentation is kept separate from the product overview:
 
 <div align="center">
 
-Private project. Not affiliated with or endorsed by Grinding Gear Games.
+Not affiliated with or endorsed by Grinding Gear Games.
 
 </div>
